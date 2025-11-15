@@ -228,7 +228,30 @@ Why this matters for the audience:
 - Fast, clean pages respect their limited energy and attention.
 - A modern stack makes it realistic to ship tools (Life OS, protocols, downloads) on the same domain later.
 
----
+### 7.1 Current Implementation Snapshot (Next.js + Supabase)
+
+As of the first implementation:
+
+- **App location**  
+  - Next.js 16 app (App Router, TypeScript) lives in `web/`.
+  - Main landing page component: `web/src/app/page.tsx`.
+  - Global styles (orange-and-white theme, layout, cards, chat UI, image styles): `web/src/app/globals.css`.
+
+- **Legacy static HTML**  
+  - The original static prototype remains at `index.html` at the repo root for reference but is no longer the primary entry point.
+
+- **Supabase wiring (no queries yet)**  
+  - Client is defined in `web/src/lib/supabaseClient.ts` using:
+    - `NEXT_PUBLIC_SUPABASE_URL`
+    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+  - These values are provided via `web/.env.local` (not committed), so the app knows how to talk to the correct Supabase project.
+  - No user-facing features consume Supabase yet; the client is ready for future use (e.g., project logs, signups, community metrics).
+
+- **Routing & future growth**  
+  - Additional pages can be added under `web/src/app/*` (e.g., `web/src/app/logs/page.tsx` for a Project Log).
+  - Supabase-backed data fetching will typically happen in server components or route handlers using the shared client.
+
+--- 
 
 ## 8. Docs & Repo Structure
 

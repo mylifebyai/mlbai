@@ -118,11 +118,10 @@ Key bullets (optional):
 - Built around the idea that **failure is data**, not a dead end.
 
 **Layout & visuals**
-- Section begins with a full-width image above the heading:
+- Section heading appears first, followed by a medium-height image directly under it:
   - Photo: beach at sunset, warm orange light, a single person running along the shoreline, footprints in the sand.
   - Caption text (overlay in the bottom-left): “Built for people who keep restarting. One more evening on the beach. One more chance to rebuild differently—with AI keeping you company in every step.”
-- Below the image:
-  - Heading: `What is “My Life, By AI”?`
+- Under the image:
   - Blockquote and 3 bullets as above.
 
 ---
@@ -182,12 +181,14 @@ Optional supporting text:
 **Layout & visuals**
 - Two-column layout on desktop:
   - Left: heading, body, bullets, CTA button, and supporting text as above.
-  - Right: an image-style card that looks like a mini video player:
+  - Right: an image-style card that looks like a mini video player (or the real embedded player when allowed):
     - Label: “Your journey, in chapters”.
-    - Dark “player” box with:
+    - Dark “player” box with either:
       - A horizontal gradient progress bar (orange → yellow).
       - Meta line: “Week 12 · Cravings & comeback” and a duration (e.g., “42 min”).
-      - Three small rectangular thumbnail blocks underneath (soft orange gradients).
+      - Three small rectangular thumbnail blocks underneath (soft orange gradients).  
+      **or**
+      - An embedded YouTube player (iframe) for a featured episode.
 - Stacked vertically on mobile (text first, then image card).
 
 ---
@@ -248,6 +249,32 @@ Planned sections (bullets):
       - `Food plan` – “3 of 4 meals”.
       - `Energy & mood` – “Steady ↑”.
 - Stacked vertically on mobile (text/cards first, then Life OS card).
+
+---
+
+### 4.8 Documented Change & Community (Current v1 Additions)
+
+These sections are already implemented in the current Next.js page to strengthen proof and social trust.
+
+**Documented change in real time**
+- Appears after “What is My Life, By AI?”
+- Short intro paragraph plus a stat strip with cards such as:
+  - `70+ lbs` – weight lost while filming the documentary.
+  - `8×` – increase in job callbacks using Arthur’s prompts.
+  - `167K+` – views on the main weight-loss tutorial.
+  - `24/7` – accountability without judgment.
+
+**How the system works**
+- Appears after “Who this is for”.
+- Three small cards labeled:
+  - `Story` – real-time docu-style episodes.
+  - `Science` – simple explanations of brain/body patterns.
+  - `System` – copy-paste prompts and protocols.
+
+**What the community says**
+- Appears near the bottom, before “Stay connected”.
+- Left: heading, short paragraph, and 2–3 key viewer quotes.
+- Right: card summarising why people trust the project (public failures, no paywalled prompts, real results like lower A1C, better jobs, etc.).
 
 ---
 
