@@ -202,8 +202,24 @@ The current static HTML landing page (`index.html`) follows the brief in `docs/L
   - Left: heading, body text, and four small cards for “Project log”, “Systems library”, “Condition guides”, and “Behind the systems”.
   - Right: “Life OS” card – warm yellow panel with rows for Today (Checked in), Movement (15 / 30 min), Food plan (3 of 4 meals), and Energy & mood (Steady ↑).
 
+- **What you can use right now (Tools)**  
+  - Grid of cards for current MLBAI experiments:
+    - Systems starter kit (Patreon download).
+    - Discord accountability lab (free community).
+    - Token template (Notion/CSV pack).
+  - Each card shows an icon, status (Live/Beta), short description, and a CTA link.
+
+- **What the community says**  
+  - Section with a highlighted testimonial plus additional quote cards.
+  - Includes a “Why people trust this” card summarizing public failures, no paywalled prompts, and real-world results.
+
 - **Stay connected**  
-  - Text section listing YouTube now and future Discord/email/Patreon, plus a closing reassurance that people can use the systems for free.
+  - “Stay connected” section with a short intro card and action cards for:
+    - YouTube channel (primary story hub).
+    - Discord accountability lab.
+    - Newsletter on Beehiiv.
+    - Patreon for deeper access.
+  - Ends with a reassurance that people can use the systems for free whether or not they join the community.
 
 ---
 
@@ -250,6 +266,23 @@ As of the first implementation:
 - **Routing & future growth**  
   - Additional pages can be added under `web/src/app/*` (e.g., `web/src/app/logs/page.tsx` for a Project Log).
   - Supabase-backed data fetching will typically happen in server components or route handlers using the shared client.
+
+### 7.2 Deployment & Domains (Current Setup)
+
+- **Hosting & project**  
+  - Hosted on Vercel as project `mlbai`.
+  - Default Vercel URL: `https://mlbai.vercel.app` (always points at the latest production deploy from `main`).
+
+- **Production domains**  
+  - Primary domain: `https://mylifeby.ai`.
+  - `https://www.mylifeby.ai` is configured as a CNAME pointing to Vercel.
+  - Vercel manages SSL certificates for both domains.
+
+- **Deploy workflow**  
+  - Any push to the `main` branch of the `mylifebyai/mlbai` GitHub repo triggers a new Vercel build for the `web/` app.
+  - Once the build succeeds, Vercel promotes it to production and serves it at:
+    - `https://mlbai.vercel.app`
+    - `https://mylifeby.ai` and `https://www.mylifeby.ai` (after DNS has propagated).
 
 --- 
 

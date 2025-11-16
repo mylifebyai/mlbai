@@ -276,6 +276,23 @@ These sections are already implemented in the current Next.js page to strengthen
 - Left: heading, short paragraph, and 2–3 key viewer quotes.
 - Right: card summarising why people trust the project (public failures, no paywalled prompts, real results like lower A1C, better jobs, etc.).
 
+**What you can use right now (Tools)**
+- Appears after “How the system works”.
+- Grid of 2–3 cards highlighting live, practical pieces people can use today, such as:
+  - `Systems starter kit` – prompts, rituals, and accountability loops (download via Patreon).
+  - `Discord accountability lab` – free community running the Arthur Token System and daily check-ins together.
+  - `Token template` – Notion/CSV pack for running the token point system at home (via Patreon).
+- Each card shows an icon, short description, status (“Live now”, “Beta”), and a button linking out.
+
+**Roadmap / Up next**
+- Appears under the tools grid as a simple roadmap strip.
+- Small cards for upcoming MLBAI tools, mirroring the app roadmap:
+  - `Promptly` – prompt helper that interviews you and rewrites stuck prompts Arthur-style.
+  - `Token System` – interface for the Arthur Token framework used in the documentary.
+  - `Fitness Tracker` – AI-adjusted workout plan around health notes and schedule.
+  - `Diet Tracker` – companion tool for co-designing meals and tracking cravings.
+- Optional link to a featured tutorial (e.g., the Token System YouTube tutorial).
+
 ---
 
 ### 4.7 Stay Connected (Optional in V1)
@@ -285,12 +302,12 @@ If you already have or plan to add other community touchpoints, this section can
 Heading:  
 `Stay connected`
 
-Bullets (examples, adjust to what exists):
+Bullets (current channels):
 
-- YouTube channel: `https://www.youtube.com/@MyLifeByAI`
-- Discord community (future)
-- Email list for system updates (future)
-- Patreon or membership for deeper access (if active)
+- YouTube channel – `https://www.youtube.com/@MyLifeByAI`
+- Discord accountability lab – daily check-ins and token experiments.
+- Newsletter on Beehiiv – weekly prompts, relapse reports, and build notes (link from site).
+- Patreon – systems starter kit, token template, and app betas as they ship.
 
 Short reassurance line:
 
