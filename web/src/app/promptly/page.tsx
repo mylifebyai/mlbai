@@ -157,42 +157,43 @@ export default function PromptlyPage() {
             ← Back to My Life, By AI
           </a>
         </div>
-        <span className="hero-eyebrow">Prompt help without the hype</span>
-        <h1>Promptly helps you talk to ChatGPT like a person, not a vending machine.</h1>
-        <p className="hero-support">
-          Tell me what you&apos;re trying to do, what keeps tripping you up, or paste the prompt you already
-          have. I&apos;ll diagnose what&apos;s missing (context, role, rubric, etc.), pick the best technique from the
-          Prompt Guide, and build the prompt with you.
-        </p>
-        <p className="hero-support">
-          When you like what you see, use the &ldquo;Copy last reply&rdquo; button at the bottom to drop the full
-          prompt straight into ChatGPT.
-        </p>
-        <div className="promptly-mode-grid">
-          <button
-            className="promptly-mode-card"
-            data-active={mode === 'improve-existing'}
-            type="button"
-            onClick={() => handleSelectMode('improve-existing')}
-          >
-            <h3>Improve an existing prompt</h3>
-            <p>
-              Paste the prompt you&apos;re using now. Promptly will inspect it, suggest what&apos;s missing, and
-              rewrite it with clarifying questions.
-            </p>
-          </button>
-          <button
-            className="promptly-mode-card"
-            data-active={mode === 'new'}
-            type="button"
-            onClick={() => handleSelectMode('new')}
-          >
-            <h3>Build from scratch</h3>
-            <p>
-              Start with your goal. Promptly will interview you for context, constraints, roles, and desired
-              outputs before drafting anything.
-            </p>
-          </button>
+        <div className="promptly-hero-card">
+          <span className="hero-eyebrow">Prompt help without the hype</span>
+          <h1>Promptly helps you talk to ChatGPT like a person, not a vending machine.</h1>
+          <p className="hero-support">
+            Tell me what you&apos;re trying to do, what keeps tripping you up, or paste the prompt you already
+            have. I&apos;ll diagnose what&apos;s missing (context, role, rubric, etc.), pick the best technique from the
+            Prompt Guide, and build the prompt with you.
+          </p>
+          <p className="hero-support">
+            When you like what you see, copy the prompt block below and drop it straight into ChatGPT.
+          </p>
+          <div className="promptly-mode-grid">
+            <button
+              className="promptly-mode-card"
+              data-active={mode === 'improve-existing'}
+              type="button"
+              onClick={() => handleSelectMode('improve-existing')}
+            >
+              <h3>Improve an existing prompt</h3>
+              <p>
+                Paste the prompt you&apos;re using now. Promptly will inspect it, suggest what&apos;s missing, and
+                rewrite it with clarifying questions.
+              </p>
+            </button>
+            <button
+              className="promptly-mode-card"
+              data-active={mode === 'new'}
+              type="button"
+              onClick={() => handleSelectMode('new')}
+            >
+              <h3>Build from scratch</h3>
+              <p>
+                Start with your goal. Promptly will interview you for context, constraints, roles, and desired
+                outputs before drafting anything.
+              </p>
+            </button>
+          </div>
         </div>
       </section>
 

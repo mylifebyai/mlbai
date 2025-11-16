@@ -510,6 +510,17 @@ li + li {
   padding: var(--section-padding) 0 2rem;
 }
 
+.promptly-hero-card {
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  background: #fff;
+  padding: 1.75rem;
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
 .promptly-back-wrap {
   margin-bottom: 1.5rem;
 }
