@@ -10,25 +10,100 @@ const stats = [
   { value: "24/7", label: "Accountability without judgment — AI never sleeps" },
 ];
 
-const futureSections = [
+const currentTools = [
   {
-    title: "Project log",
+    title: "Systems starter kit",
+    icon: "📘",
+    status: "Live now",
     copy:
-      "Short written updates that track experiments and setbacks between videos.",
+      "Read the exact prompts, rituals, and accountability loops I run with Arthur. Use them as-is or remix them with your own coach.",
+    linkText: "Access on Patreon",
+    href: "https://www.patreon.com/c/mylifebyai",
+    note: "Available to Patreon supporters (Starter tier). Instant download after joining.",
   },
   {
-    title: "Systems library",
+    title: "Discord accountability lab",
+    icon: "💬",
+    status: "Live now",
     copy:
-      "The exact prompts and protocols for weight loss, ADHD planning, job search, and more.",
+      "We run the Arthur Token System, daily check-ins, and restarts together. It’s where new experiments and office hours happen first.",
+    linkText: "Join Discord",
+    href: "https://discord.gg/RvtbVXwEnd",
+    note: "Free access. Say hi in #introductions and grab the daily check-in thread.",
   },
   {
-    title: "Condition guides",
-    copy: "How I use AI alongside challenges like insulin resistance or chronic pain.",
+    title: "Token template",
+    icon: "🎯",
+    status: "Beta download",
+    copy:
+      "A Notion + CSV pack that lets you reward real-life actions with the same point system that viewers are using.",
+    linkText: "Download on Patreon",
+    href: "https://www.patreon.com/posts/141029744",
+    note: "Included with Patreon releases. Works best alongside the public tutorial.",
+  },
+];
+
+const roadmap = [
+  {
+    title: "Promptly",
+    timeline: "Private beta",
+    copy: "An assistant that interviews you about a stuck prompt and rewrites it Arthur-style so you can actually ship the task.",
   },
   {
-    title: "Behind the systems",
-    copy:
-      "How I maintain my manifesto, handle AI memory limits, and adapt when tools change.",
+    title: "Token System",
+    timeline: "Rolling out",
+    copy: "An interface for the token framework I run my life on with Arthur — track points, consequences, and wins in sync with ChatGPT. Based on the protocol from the documentary.",
+    link: {
+      href: "https://www.youtube.com/watch?v=zq-1Y32bfTQ&t=184s",
+      label: "Watch the tutorial",
+    },
+  },
+  {
+    title: "Fitness Tracker",
+    timeline: "In design",
+    copy: "AI builds a plan around your health notes, weight, age, and schedule, then checks in daily to adjust workouts the moment something shifts.",
+  },
+  {
+    title: "Diet Tracker",
+    timeline: "In research",
+    copy: "Companion to the fitness tool: co-design meals with Arthur, log cravings, and get nudges when your insulin, energy, or routines change.",
+  },
+];
+
+const testimonials = [
+  {
+    quote:
+      "The token point system finally clicks. Points buy gaming time, so staying on plan feels rewarding immediately—and the limits pull me back before I drift.",
+    author: "Discord Community Member",
+  },
+  {
+    quote:
+      "I used to think consistency wasn’t possible for someone with ADHD like me. The Arthur Token System changed that—I’m finally stacking days of progress.",
+    author: "Luxsea",
+  },
+];
+
+const stayChannels = [
+  {
+    title: "Discord Lab",
+    description:
+      "Daily check-ins, token experiments, and office hours with the people running these systems alongside me.",
+    linkText: "Join Discord",
+    href: "https://discord.gg/RvtbVXwEnd",
+  },
+  {
+    title: "Newsletter",
+    description:
+      "Weekly prompt drops, relapse reports, and behind-the-scenes build notes. Land in your inbox before YouTube.",
+    linkText: "Subscribe on Beehiiv",
+    href: "https://mylifebyai.beehiiv.com/",
+  },
+  {
+    title: "Patreon",
+    description:
+      "Access the systems starter kit, token template, and future MLBAI app betas the moment they ship.",
+    linkText: "Support on Patreon",
+    href: "https://www.patreon.com/c/mylifebyai",
   },
 ];
 
@@ -44,18 +119,9 @@ export default function Home() {
             </div>
             <div className="nav-links">
               <a href="#what">Project</a>
-              <a href="#who">Who it’s for</a>
+              <a href="#tools">Tools</a>
               <a href="#youtube">Watch</a>
-              <a href="#next">Future</a>
             </div>
-            <a
-              className="cta-primary"
-              href="https://www.youtube.com/@MyLifeByAI"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Watch on YouTube
-            </a>
           </nav>
         </div>
         <div className="wrapper hero">
@@ -78,6 +144,10 @@ export default function Home() {
                 If you&apos;ve tried everything and still feel stuck, this project is
                 for you.
               </p>
+              <p className="hero-support">
+                This site is the basecamp for My Life, By AI — the systems I run with
+                Arthur and the MLBAI apps that grow out of them.
+              </p>
               <div className="cta-row">
                 <a
                   className="cta-primary"
@@ -87,8 +157,8 @@ export default function Home() {
                 >
                   Start the documentary on YouTube
                 </a>
-                <a className="cta-secondary" href="#what">
-                  Or learn what this is all about
+                <a className="cta-secondary" href="#tools">
+                  Get the systems starter kit
                 </a>
               </div>
               <p className="hero-support">
@@ -162,12 +232,11 @@ export default function Home() {
                 </figcaption>
               </figure>
               <blockquote>
-                &quot;My Life, By AI&quot; is an ongoing experiment in letting ChatGPT act as my
-                life coach, project manager, and accountability partner. I’ve failed at
-                diets, routines, and self-help more times than I can count. Instead of hiding
-                that, I document it. Together with my AI coach (Arthur), I’m rebuilding my
-                life using systems, not willpower — and showing you everything, including the
-                relapses.
+                &quot;My Life, By AI&quot; is me letting ChatGPT act as my life coach,
+                project manager, and accountability partner. I’ve failed at diets,
+                routines, and self-help more times than I can count, so I document the
+                rebuild instead of hiding it. Arthur and I are designing systems, not
+                relying on willpower — and every relapse is part of the report.
               </blockquote>
               <ul>
                 <li>
@@ -185,122 +254,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        <section id="proof">
-          <div className="wrapper section-content">
-            <div>
-              <h2>Documented change in real time</h2>
-              <p className="section-note">
-                Every number comes from something we’ve actually shipped with AI help —
-                weight lost, jobs landed, people inside the community rebuilding alongside us.
-              </p>
-            </div>
-            <div className="stats">
-              {stats.map((stat) => (
-                <div key={stat.label} className="stat">
-                  <strong>{stat.value}</strong>
-                  <span>{stat.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="who">
-          <div className="wrapper section-content">
-            <div>
-              <h2>If this sounds like you, you’re in the right place</h2>
-              <blockquote>
-                &quot;My Life, By AI&quot; is an ongoing experiment in letting ChatGPT act as my
-                life coach, project manager, and accountability partner. I’ve failed at
-                diets, routines, and self-help more times than I can count. Instead of hiding
-                that, I document it. Together with my AI coach (Arthur), I’m rebuilding my
-                life using systems, not willpower — and showing you everything, including the
-                relapses.
-              </blockquote>
-              <ul>
-                <li>
-                  A <strong>vlogumentary</strong>: real-time documentary + systems + simple
-                  science.
-                </li>
-                <li>
-                  For people who have <strong>tried everything and are tired of failing
-                  alone</strong>.
-                </li>
-                <li>
-                  Built around the idea that <strong>failure is data</strong>, not a dead end.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        <section id="who">
-          <div className="wrapper section-content">
-            <div>
-              <h2>If this sounds like you, you’re in the right place</h2>
-              <ul>
-                <li>
-                  You’ve tried diets, routines, and planners for years — and you’re exhausted
-                  by the cycle of restart → crash → guilt.
-                </li>
-                <li>
-                  You live with ADHD, anxiety, depression, chronic pain, or other conditions
-                  that make “just try harder” advice useless.
-                </li>
-                <li>
-                  You want structure and accountability but <strong>can’t afford</strong> a
-                  coach, trainer, or therapist for everything.
-                </li>
-                <li>
-                  You’re curious whether an AI you can talk to in private could be the missing
-                  piece.
-                </li>
-              </ul>
-            </div>
-            <blockquote>
-              You’re not broken and you’re not alone. You just haven’t had a system built
-              for how your brain and life actually work.
-            </blockquote>
-          </div>
-        </section>
-
-        <section id="approach">
-          <div className="wrapper section-content">
-            <div>
-              <h2>How the system works</h2>
-              <p className="section-note">
-                Every episode rotates between story, science, and system so you always know
-                what happened, why it happened, and how to recreate it with your own AI
-                teammate.
-              </p>
-            </div>
-            <div className="cards">
-              <article className="card">
-                <h3>Story</h3>
-                <p>
-                  Radically honest vlogumentary episodes that show the restarts, cravings,
-                  wins, and setbacks in real time.
-                </p>
-              </article>
-              <article className="card">
-                <h3>Science</h3>
-                <p>
-                  Simple explanations of what’s happening in your brain and body — dopamine
-                  loops, hunger cues, executive dysfunction.
-                </p>
-              </article>
-              <article className="card">
-                <h3>System</h3>
-                <p>
-                  Copy-paste prompts, decision rules, check-ins, and dashboards built with
-                  ChatGPT so you can run the protocol yourself.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
         <section id="youtube">
           <div className="wrapper section-content section-split">
             <div>
@@ -315,12 +268,12 @@ export default function Home() {
                   showing the journey.
                 </li>
                 <li>
-                  <strong>Full tutorials</strong> – copy-paste prompts and systems for weight
-                  loss, job search, and more.
+                  <strong>Full tutorials</strong> – copy-paste prompts and systems for
+                  weight loss, job search, and more.
                 </li>
                 <li>
-                  <strong>Failure and recovery</strong> – episodes where things fall apart and
-                  we rebuild.
+                  <strong>Failure and recovery</strong> – episodes where things fall apart
+                  and we rebuild.
                 </li>
               </ul>
               <div className="cta-row">
@@ -356,72 +309,108 @@ export default function Home() {
           </div>
         </section>
 
-        <section id="why">
+        <section id="proof">
           <div className="wrapper section-content">
             <div>
-              <h2>Why this site exists</h2>
-              <p>
-                YouTube is great for watching the journey, but terrible for keeping systems,
-                prompts, and resources organized.
+              <h2>Documented change in real time</h2>
+              <p className="section-note">
+                Every number comes from something we’ve actually shipped with AI help —
+                weight lost, jobs landed, people inside the community rebuilding alongside us.
               </p>
-              <p>
-                This site is the home base for &quot;My Life, By AI&quot; — a place to collect the
-                exact systems I use, the prompts you can copy, and the behind-the-scenes
-                notes that don’t fit in a video description.
-              </p>
-              <ul>
-                <li>
-                  Find <strong>where to start</strong> in the documentary, based on your
-                  situation.
-                </li>
-                <li>
-                  Get <strong>written breakdowns</strong> of key systems and episodes.
-                </li>
-                <li>
-                  Explore <strong>condition-specific guides</strong> (ADHD, insulin
-                  resistance, chronic pain, etc.) as they release.
-                </li>
-              </ul>
+            </div>
+            <div className="stats">
+              {stats.map((stat) => (
+                <div key={stat.label} className="stat">
+                  <strong>{stat.value}</strong>
+                  <span>{stat.label}</span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
-
-        <section id="next">
-          <div className="wrapper section-content section-split">
+        <section id="approach">
+          <div className="wrapper section-content">
             <div>
-              <h2>What’s coming next</h2>
-              <p>
-                This is the first version of the site. Over time, it will grow into a hub for
-                people who want to build their own AI-powered Life OS.
+              <h2>How the system works</h2>
+              <p className="section-note">
+                Every episode rotates between story, science, and system so you always know
+                what happened, why it happened, and how to recreate it with your own AI
+                teammate.
               </p>
-              <div className="cards">
-                {futureSections.map((section) => (
-                  <article className="card" key={section.title}>
-                    <h3>{section.title}</h3>
-                    <p>{section.copy}</p>
+            </div>
+            <div className="cards">
+              <article className="card">
+                <h3>Story</h3>
+                <p>
+                  Radically honest vlogumentary episodes that show the restarts, cravings,
+                  wins, and setbacks in real time.
+                </p>
+              </article>
+              <article className="card">
+                <h3>Science</h3>
+                <p>
+                  Simple explanations of what’s happening in your brain and body — dopamine
+                  loops, hunger cues, executive dysfunction.
+                </p>
+              </article>
+              <article className="card">
+                <h3>System</h3>
+                <p>
+                  Copy-paste prompts, decision rules, check-ins, and dashboards built with
+                  ChatGPT so you can run the protocol yourself.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+        <section id="tools">
+          <div className="wrapper section-content">
+            <div>
+              <h2>What you can use right now</h2>
+              <p className="section-note">
+                These are the live experiments tied to the documentary. Each one is part of
+                the MLBAI platform and grows as we learn what actually works.
+              </p>
+            </div>
+            <div className="tools-grid">
+              {currentTools.map((tool) => (
+                <article className="tool-card" key={tool.title}>
+                  <div className="tool-card-status">{tool.status}</div>
+                  {tool.icon && <div className="tool-card-icon">{tool.icon}</div>}
+                  <h3>{tool.title}</h3>
+                  <p>{tool.copy}</p>
+                  {tool.note && <p className="tool-card-note">{tool.note}</p>}
+                  <a
+                    href={tool.href}
+                    target={tool.href.startsWith("http") ? "_blank" : undefined}
+                    rel={tool.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                    className="tool-card-link"
+                  >
+                    {tool.linkText}
+                  </a>
+                </article>
+              ))}
+            </div>
+            <div className="roadmap">
+              <h3>Up next</h3>
+              <div className="roadmap-items">
+                {roadmap.map((item) => (
+                  <article className="roadmap-item" key={item.title}>
+                    <div className="roadmap-item-label">{item.timeline}</div>
+                    <h4>{item.title}</h4>
+                    <p>{item.copy}</p>
+                    {item.link && (
+                      <a
+                        className="roadmap-link"
+                        href={item.link.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {item.link.label}
+                      </a>
+                    )}
                   </article>
                 ))}
-              </div>
-            </div>
-            <div className="image-card" aria-hidden="true">
-              <div className="image-label">Your AI-powered Life OS</div>
-              <div className="image-os-frame">
-                <div className="image-os-row">
-                  <span>Today</span>
-                  <span className="image-os-pill">Checked in</span>
-                </div>
-                <div className="image-os-row">
-                  <span>Movement</span>
-                  <span>15 / 30 min</span>
-                </div>
-                <div className="image-os-row">
-                  <span>Food plan</span>
-                  <span>3 of 4 meals</span>
-                </div>
-                <div className="image-os-row">
-                  <span>Energy &amp; mood</span>
-                  <span>Steady ↑</span>
-                </div>
               </div>
             </div>
           </div>
@@ -432,22 +421,25 @@ export default function Home() {
             <div>
               <h2>What the community says</h2>
               <p>
-                People who thought they had “tried everything” keep showing up because the
-                system treats failure differently.
+                These are real notes from people running their own versions of the My Life,
+                By AI systems alongside me.
               </p>
-              <ul>
-                <li>
-                  “I watched the entire 100-day video in one sitting. It finally felt like
-                  someone understood the shame cycle.”
-                </li>
-                <li>
-                  “Arthur helped me land 8 out of 10 interviews. I’ve never had that success
-                  rate.”
-                </li>
-                <li>
-                  “Your prompts are the only reason I’ve stayed consistent for 6 weeks.”
-                </li>
-              </ul>
+              <div className="testimonial-highlight">
+                <p>
+                  “I’ve lost 34 pounds in 5 months… and it’s been the easiest weight loss I’ve
+                  ever experienced. Arthur adjusts my workouts, meals, creativity time — without
+                  shame.”
+                </p>
+                <span>Dan “Bearlee” Lorius</span>
+              </div>
+              <div className="testimonial-grid">
+                {testimonials.map((testimonial) => (
+                  <article className="testimonial-card" key={testimonial.author}>
+                    <p>{testimonial.quote}</p>
+                    <span>{testimonial.author}</span>
+                  </article>
+                ))}
+              </div>
             </div>
             <div className="card">
               <h3>Why people trust this</h3>
@@ -469,21 +461,27 @@ export default function Home() {
           <div className="wrapper section-content">
             <div>
               <h2>Stay connected</h2>
-              <ul>
-                <li>
-                  YouTube channel:{" "}
-                  <a
-                    href="https://www.youtube.com/@MyLifeByAI"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    @MyLifeByAI
-                  </a>
-                </li>
-                <li>Discord community (coming soon)</li>
-                <li>Email list for system updates (coming soon)</li>
-                <li>Patreon or membership for deeper access (if active)</li>
-              </ul>
+              <div className="stay-card">
+                Every MLBAI app or experiment launches from here first — these channels are
+                how you’ll hear about new prompt builders, check-ins, and tools the minute
+                they’re ready.
+              </div>
+              <div className="stay-actions">
+                {stayChannels.map((channel) => (
+                  <article className="stay-action" key={channel.title}>
+                    <h3>{channel.title}</h3>
+                    <p>{channel.description}</p>
+                    <a
+                      className="cta-primary stay-action-link"
+                      href={channel.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {channel.linkText}
+                    </a>
+                  </article>
+                ))}
+              </div>
               <blockquote>
                 Whether you ever join a community or not, you’re welcome to use the systems
                 here for free.
