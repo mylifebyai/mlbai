@@ -92,7 +92,7 @@ Run the diagnostic, explain the techniques you'll use, and keep building the pro
     };
 
     const rawContent = completion.choices[0]?.message?.content ?? '';
-    let parsed: { assistantMessage?: string; promptDraft?: string } | null = null;
+    let parsed: { assistantMessage?: string; promptDraft?: string; content?: string } | null = null;
     const fenceMatch = rawContent.match(/```(?:json)?\s*([\s\S]*?)```/i);
     const jsonCandidate = fenceMatch ? fenceMatch[1]?.trim() : rawContent.trim();
 
