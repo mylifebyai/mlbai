@@ -153,6 +153,29 @@
     color: var(--muted);
   }
 
+  .hero-feature {
+    margin: 1.5rem 0;
+  }
+
+  .hero-feature-media {
+    border-radius: 1.4rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-soft);
+    background: #fff;
+  }
+
+  .hero-feature-media img {
+    width: 100%;
+    display: block;
+  }
+
+  .hero-feature-note {
+    margin-top: 0.7rem;
+    font-size: 0.95rem;
+    color: var(--muted);
+  }
+
   .cta-row {
     display: flex;
     gap: 1rem;
@@ -542,18 +565,16 @@
     <div class="wrapper hero">
       <div class="hero-grid">
         <div>
-          <ul class="pill-list" aria-label="Project pillars">
-            <li>Real-time documentary</li>
-            <li>Systems, not willpower</li>
-            <li>ChatGPT life coach</li>
-          </ul>
           <span class="hero-eyebrow">A different kind of self-improvement story</span>
           <h1>Let AI help you rebuild a life you actually want to live.</h1>
           <p class="hero-subtitle">A real-time documentary of someone who failed at diets and self-help for years, rebuilding life with a non-judgmental AI coach.</p>
           <p class="hero-support">If you've tried everything and still feel stuck, this project is for you.</p>
-          <div class="cta-row">
-            <a class="cta-primary" href="https://www.youtube.com/@MyLifeByAI" target="_blank" rel="noopener noreferrer">Start the documentary on YouTube</a>
-            <a class="cta-secondary" href="#what">Or learn what this is all about</a>
+          <p class="hero-support">This site is the basecamp for My Life, By AI — the systems I run with Arthur and the MLBAI apps that grow out of them.</p>
+          <div class="hero-feature">
+            <div class="hero-feature-media">
+              <img src="images/weightloss.png" alt="Weight loss progress collage showing weekly check-ins from the documentary." />
+            </div>
+            <p class="hero-feature-note">70+ lbs lost with Arthur watching every relapse and restart. No hype — just the weekly systems that actually held.</p>
           </div>
           <p class="hero-support">No hype, no perfection. Just one human, one AI, and a system that treats failure as data.</p>
         </div>

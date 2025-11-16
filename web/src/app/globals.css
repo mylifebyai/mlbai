@@ -188,6 +188,30 @@ nav {
   margin: 0.15rem 0;
 }
 
+.hero-feature {
+  margin: 1.5rem 0;
+}
+
+.hero-feature-media {
+  border-radius: 1.4rem;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-soft);
+  background: #fff;
+}
+
+.hero-feature-img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.hero-feature-note {
+  margin-top: 0.7rem;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
 .cta-row {
   display: flex;
   gap: 1rem;

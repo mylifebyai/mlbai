@@ -127,11 +127,6 @@ export default function Home() {
         <div className="wrapper hero">
           <div className="hero-grid">
             <div>
-              <ul className="pill-list" aria-label="Project pillars">
-                <li>Real-time documentary</li>
-                <li>Systems, not willpower</li>
-                <li>ChatGPT life coach</li>
-              </ul>
               <span className="hero-eyebrow">
                 A different kind of self-improvement story
               </span>
@@ -148,18 +143,21 @@ export default function Home() {
                 This site is the basecamp for My Life, By AI — the systems I run with
                 Arthur and the MLBAI apps that grow out of them.
               </p>
-              <div className="cta-row">
-                <a
-                  className="cta-primary"
-                  href="https://www.youtube.com/@MyLifeByAI"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Start the documentary on YouTube
-                </a>
-                <a className="cta-secondary" href="#tools">
-                  Get the systems starter kit
-                </a>
+              <div className="hero-feature">
+                <div className="hero-feature-media">
+                  <Image
+                    src="/images/weightloss.png"
+                    alt="Weight loss progress collage showing weekly check-ins from the documentary."
+                    width={640}
+                    height={420}
+                    className="hero-feature-img"
+                    priority
+                  />
+                </div>
+                <p className="hero-feature-note">
+                  70+ lbs lost with Arthur watching every relapse and restart. No hype
+                  — just the weekly systems that actually held.
+                </p>
               </div>
               <p className="hero-support">
                 No hype, no perfection. Just one human, one AI, and a system that
