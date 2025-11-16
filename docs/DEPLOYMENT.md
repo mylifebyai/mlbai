@@ -42,10 +42,11 @@ Current env vars (configured in Vercel under the `mlbai` project):
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `OPENAI_API_KEY` – required for the Promptly API route; store the server-side OpenAI key here.
 
 Locally, these live in `web/.env.local` (not committed).
 
----
+--- 
 
 ## 4. Domain & DNS Setup (mylifeby.ai via GoDaddy)
 
@@ -105,4 +106,3 @@ If the project ever needs to be recreated or moved:
    - Wait for DNS propagation and confirm by visiting `https://mylifeby.ai`.
 
 Once this is done, pushing to `main` is all that’s needed to update the live site.
-

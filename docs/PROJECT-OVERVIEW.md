@@ -204,9 +204,9 @@ The current static HTML landing page (`index.html`) follows the brief in `docs/L
 
 - **What you can use right now (Tools)**  
   - Grid of cards for current MLBAI experiments:
+    - Promptly (free conversational prompt helper on the main site).
     - Systems starter kit (Patreon download).
     - Discord accountability lab (free community).
-    - Token template (Notion/CSV pack).
   - Each card shows an icon, status (Live/Beta), short description, and a CTA link.
 
 - **What the community says**  

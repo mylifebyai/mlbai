@@ -17,3 +17,8 @@ Human-readable log of notable changes to the public site and architecture. For t
   - Community testimonials (“What the community says”).
   - Stay connected section (YouTube, Discord, Beehiiv newsletter, Patreon).
 
+## 2025-02 – Promptly beta shipped
+
+- Built the `/promptly` experience with diagnostic-driven ChatGPT conversations and a real OpenAI backend.
+- Added Promptly to the “What you can use right now” tools grid and removed the Token template card.
+- Captured the guiding principles in `docs/PROMPT-GUIDE.md` and updated `docs/PROMPTLY-SPEC.md` to include the diagnostic phase.

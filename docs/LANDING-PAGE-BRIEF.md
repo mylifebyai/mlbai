@@ -279,15 +279,14 @@ These sections are already implemented in the current Next.js page to strengthen
 **What you can use right now (Tools)**
 - Appears after “How the system works”.
 - Grid of 2–3 cards highlighting live, practical pieces people can use today, such as:
+  - `Promptly` – conversational helper that diagnoses prompt gaps and builds a copy-ready prompt on the site.
   - `Systems starter kit` – prompts, rituals, and accountability loops (download via Patreon).
   - `Discord accountability lab` – free community running the Arthur Token System and daily check-ins together.
-  - `Token template` – Notion/CSV pack for running the token point system at home (via Patreon).
 - Each card shows an icon, short description, status (“Live now”, “Beta”), and a button linking out.
 
 **Roadmap / Up next**
 - Appears under the tools grid as a simple roadmap strip.
 - Small cards for upcoming MLBAI tools, mirroring the app roadmap:
-  - `Promptly` – prompt helper that interviews you and rewrites stuck prompts Arthur-style.
   - `Token System` – interface for the Arthur Token framework used in the documentary.
   - `Fitness Tracker` – AI-adjusted workout plan around health notes and schedule.
   - `Diet Tracker` – companion tool for co-designing meals and tracking cravings.

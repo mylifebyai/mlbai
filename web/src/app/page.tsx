@@ -12,6 +12,16 @@ const stats = [
 
 const currentTools = [
   {
+    title: "Promptly",
+    icon: "🧠",
+    status: "Live now",
+    copy:
+      "Diagnose what’s missing from your prompt, pick the right technique from the MLBAI guide, and get a copy-ready prompt through conversation.",
+    linkText: "Use Promptly",
+    href: "/promptly",
+    note: "Free beta. Works best on desktop for now.",
+  },
+  {
     title: "Systems starter kit",
     icon: "📘",
     status: "Live now",
@@ -31,24 +41,9 @@ const currentTools = [
     href: "https://discord.gg/RvtbVXwEnd",
     note: "Free access. Say hi in #introductions and grab the daily check-in thread.",
   },
-  {
-    title: "Token template",
-    icon: "🎯",
-    status: "Beta download",
-    copy:
-      "A Notion + CSV pack that lets you reward real-life actions with the same point system that viewers are using.",
-    linkText: "Download on Patreon",
-    href: "https://www.patreon.com/posts/141029744",
-    note: "Included with Patreon releases. Works best alongside the public tutorial.",
-  },
 ];
 
 const roadmap = [
-  {
-    title: "Promptly",
-    timeline: "Private beta",
-    copy: "An assistant that interviews you about a stuck prompt and rewrites it Arthur-style so you can actually ship the task.",
-  },
   {
     title: "Token System",
     timeline: "Rolling out",
@@ -121,6 +116,7 @@ export default function Home() {
               <a href="#what">Project</a>
               <a href="#tools">Tools</a>
               <a href="#youtube">Watch</a>
+              <a href="/promptly">Promptly</a>
             </div>
           </nav>
         </div>
