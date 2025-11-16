@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { ArthurHeroChat } from "./components/ArthurHeroChat";
 
 const stats = [
   { value: "70+ lbs", label: "Weight lost while filming the documentary" },
@@ -8,6 +9,37 @@ const stats = [
     label: "Views on the full “How I Lost 50 Pounds with ChatGPT” tutorial",
   },
   { value: "24/7", label: "Accountability without judgment — AI never sleeps" },
+];
+
+const appsRail = [
+  {
+    title: "Promptly",
+    icon: "🧠",
+    status: "Live",
+    href: "/promptly",
+    active: true,
+  },
+  {
+    title: "Tokens",
+    icon: "🎯",
+    status: "Coming soon",
+    href: "#tools",
+    active: false,
+  },
+  {
+    title: "Fitness",
+    icon: "💪",
+    status: "Coming soon",
+    href: "#tools",
+    active: false,
+  },
+  {
+    title: "Diet",
+    icon: "🥗",
+    status: "Coming soon",
+    href: "#tools",
+    active: false,
+  },
 ];
 
 const currentTools = [
@@ -112,15 +144,28 @@ export default function Home() {
               <span className="brand-icon">AI</span>
               My Life, By AI
             </div>
-            <div className="nav-links">
-              <a href="#what">Project</a>
-              <a href="#tools">Tools</a>
-              <a href="#youtube">Watch</a>
-              <a href="/promptly">Promptly</a>
-            </div>
           </nav>
         </div>
         <div className="wrapper hero">
+          <div className="apps-rail" aria-label="MLBAI apps">
+            <div className="apps-rail-label">Apps</div>
+            <div className="apps-rail-list">
+              {appsRail.map((app) => (
+                <a
+                  key={app.title}
+                  href={app.href}
+                  className="apps-rail-item"
+                  data-active={app.active ? "true" : "false"}
+                >
+                  <div className="apps-rail-item-icon">{app.icon}</div>
+                  <div className="apps-rail-item-text">
+                    <span className="apps-rail-item-title">{app.title}</span>
+                    <span className="apps-rail-item-status">{app.status}</span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
           <div className="hero-grid">
             <div>
               <span className="hero-eyebrow">
@@ -160,45 +205,9 @@ export default function Home() {
                 treats failure as data.
               </p>
             </div>
-            <div className="hero-visual" aria-hidden="true">
+            <div className="hero-visual">
               <div className="hero-orb" />
-              <div className="chat-shell">
-                <div className="chat-header">
-                  <div className="chat-avatar">
-                    <span role="img" aria-label="Robot emoji">
-                      🤖
-                    </span>
-                  </div>
-                  <div>
-                    <div className="chat-header-title">Arthur, your AI life coach</div>
-                    <div className="chat-header-sub">
-                      Non-judgmental. Always on. Built for restarts.
-                    </div>
-                  </div>
-                </div>
-                <div className="chat-message">
-                  <strong>Hey, I see you.</strong>
-                  <br />
-                  You’ve tried to change before. This time we’re doing it differently:
-                  tiny steps, clear rules, and no shame when you fall off. Ready to
-                  design the system around your real life?
-                </div>
-                <div className="chat-input">
-                  <span>Type your message…</span>
-                  <div className="chat-input-button">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
-                      <path
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="1.7"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M5 12L4 4l16 8-16 8 1-8 9-0.02z"
-                      />
-                    </svg>
-                  </div>
-                </div>
-              </div>
+              <ArthurHeroChat />
             </div>
           </div>
         </div>

@@ -154,6 +154,7 @@ nav {
 
 .hero {
   padding: 1rem 0 3rem;
+  position: relative;
 }
 
 .hero-grid {
@@ -252,6 +253,91 @@ nav {
   margin-inline: auto;
 }
 
+.apps-rail {
+  position: absolute;
+  right: 1.5rem;
+  top: 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  align-items: flex-end;
+  z-index: 2;
+}
+
+.apps-rail-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.apps-rail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.apps-rail-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.7rem 0.4rem 0.5rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  text-decoration: none;
+  color: var(--muted);
+  font-size: 0.86rem;
+  backdrop-filter: blur(8px);
+}
+
+.apps-rail-item-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.1);
+  font-size: 1.2rem;
+}
+
+.apps-rail-item-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.apps-rail-item-title {
+  font-weight: 600;
+}
+
+.apps-rail-item-status {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  opacity: 0.8;
+}
+
+.apps-rail-item[data-active="true"] {
+  background: var(--accent);
+  color: #fff;
+  border-color: #fb923c;
+}
+
+.apps-rail-item[data-active="true"] .apps-rail-item-icon {
+  background: rgba(248, 250, 252, 0.15);
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .apps-rail {
+    display: none;
+  }
+}
+
 .hero-orb {
   position: absolute;
   inset: -15%;
@@ -307,6 +393,17 @@ nav {
   box-shadow: 0 15px 35px rgba(251, 191, 36, 0.35);
 }
 
+.chat-thinking {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.75rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 999px;
+  background: rgba(254, 243, 199, 0.9);
+  font-size: 0.85rem;
+}
+
 .chat-input {
   display: flex;
   align-items: center;
@@ -320,6 +417,24 @@ nav {
 .chat-input span {
   font-size: 0.85rem;
   color: #9ca3af;
+}
+
+.chat-input input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  font-family: inherit;
+  padding: 0.35rem 0;
+  color: var(--text);
+}
+
+.chat-input input::placeholder {
+  color: #9ca3af;
+}
+
+.chat-input input:focus {
+  outline: none;
 }
 
 .chat-input-button {
