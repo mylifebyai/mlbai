@@ -8,6 +8,20 @@ type ChatMessage = {
   content: string;
 };
 
+function escapeHtml(text: string) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function formatMessageContent(text: string) {
+  return escapeHtml(text)
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[(.+?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+    .replace(/\n/g, '<br />');
+}
+
 function createMessage(role: ChatMessage['role'], content: string): ChatMessage {
   const id =
     typeof crypto !== 'undefined' && crypto.randomUUID
@@ -73,6 +87,14 @@ export function ArthurHeroChat() {
     }
   };
 
+  const latestAssistantMessage =
+    (
+      messages
+        .slice()
+        .reverse()
+        .find((message) => message.role === 'assistant') ?? messages[0]
+    )?.content ?? INTRO_MESSAGE;
+
   return (
     <div className="chat-shell" aria-label="Chat with Arthur about this site">
       <div className="chat-header">
@@ -89,11 +111,11 @@ export function ArthurHeroChat() {
         </div>
       </div>
       <div className="chat-message">
-        {(messages
-          .slice()
-          .reverse()
-          .find((message) => message.role === 'assistant') ?? messages[0]
-        )?.content ?? INTRO_MESSAGE}
+        <div
+          dangerouslySetInnerHTML={{
+            __html: formatMessageContent(latestAssistantMessage),
+          }}
+        />
         {isSending && (
           <div className="chat-thinking">
             <span role="img" aria-label="Arthur thinking">
