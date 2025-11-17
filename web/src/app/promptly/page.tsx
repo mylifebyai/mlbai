@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 
 type Mode = 'improve-existing' | 'new';
@@ -65,7 +66,6 @@ export default function PromptlyPage() {
   ]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
-  const [copied, setCopied] = useState(false);
 
   const handleSelectMode = (value: Mode) => {
     setMode(value);
@@ -127,35 +127,15 @@ export default function PromptlyPage() {
     }
     setMessages([createMessage('assistant', INTRO_MESSAGE[mode])]);
     setInput('');
-    setCopied(false);
-  };
-
-  const handleCopy = async () => {
-    const latestPrompt = messages
-      .slice()
-      .reverse()
-      .find((message) => message.role === 'assistant')?.content;
-
-    if (!latestPrompt) {
-      return;
-    }
-
-    try {
-      await navigator.clipboard.writeText(latestPrompt);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      setCopied(false);
-    }
   };
 
   return (
     <main className="promptly-page">
-      <section className="wrapper promptly-hero">
+      <section className="wrapper app-shell promptly-hero">
         <div className="promptly-back-wrap">
-          <a className="promptly-back-link" href="/" aria-label="Back to home">
+          <Link className="promptly-back-link" href="/" aria-label="Back to home">
             ← Back to My Life, By AI
-          </a>
+          </Link>
         </div>
         <div className="promptly-hero-card">
           <span className="hero-eyebrow">Prompt help without the hype</span>
@@ -197,7 +177,7 @@ export default function PromptlyPage() {
         </div>
       </section>
 
-      <section className="wrapper promptly-layout">
+      <section className="wrapper app-shell promptly-layout">
         <div className="prompt-chat">
           <div className="prompt-messages" aria-live="polite">
             {messages.map((message) => (
