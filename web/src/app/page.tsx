@@ -11,37 +11,6 @@ const stats = [
   { value: "24/7", label: "Accountability without judgment — AI never sleeps" },
 ];
 
-const appsRail = [
-  {
-    title: "Promptly",
-    icon: "🧠",
-    status: "Live",
-    href: "/promptly",
-    active: true,
-  },
-  {
-    title: "Tokens",
-    icon: "🎯",
-    status: "Coming soon",
-    href: "#tools",
-    active: false,
-  },
-  {
-    title: "Fitness",
-    icon: "💪",
-    status: "Coming soon",
-    href: "#tools",
-    active: false,
-  },
-  {
-    title: "Diet",
-    icon: "🥗",
-    status: "Coming soon",
-    href: "#tools",
-    active: false,
-  },
-];
-
 const currentTools = [
   {
     title: "Promptly",
@@ -147,25 +116,6 @@ export default function Home() {
           </nav>
         </div>
         <div className="wrapper hero">
-          <div className="apps-rail" aria-label="MLBAI apps">
-            <div className="apps-rail-label">Apps</div>
-            <div className="apps-rail-list">
-              {appsRail.map((app) => (
-                <a
-                  key={app.title}
-                  href={app.href}
-                  className="apps-rail-item"
-                  data-active={app.active ? "true" : "false"}
-                >
-                  <div className="apps-rail-item-icon">{app.icon}</div>
-                  <div className="apps-rail-item-text">
-                    <span className="apps-rail-item-title">{app.title}</span>
-                    <span className="apps-rail-item-status">{app.status}</span>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
           <div className="hero-grid">
             <div>
               <span className="hero-eyebrow">
