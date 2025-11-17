@@ -9,29 +9,7 @@ import {
   type FormEvent,
 } from "react";
 import Link from "next/link";
-
-type FeedbackStatus = "todo" | "complete";
-
-type FeedbackEntry = {
-  id: string;
-  name: string;
-  contact: string;
-  issueType: string;
-  severity: string;
-  affectedArea: string;
-  description: string;
-  steps: string;
-  image?: string;
-  imageName?: string;
-  status: FeedbackStatus;
-  createdAt: string;
-  environment: {
-    browser: string;
-    viewport: string;
-  };
-};
-
-const STORAGE_KEY = "mlbai-feedback";
+import type { FeedbackEntry, FeedbackStatus } from "@/types/feedback";
 
 const initialForm = {
   name: "",
@@ -48,8 +26,10 @@ export default function FeedbackPage() {
   const [entries, setEntries] = useState<FeedbackEntry[]>([]);
   const [imageData, setImageData] = useState<{ src: string; name: string }>();
   const [dropActive, setDropActive] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isReady, setIsReady] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [entriesError, setEntriesError] = useState<string | null>(null);
+  const [entriesLoading, setEntriesLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [lanesOpen, setLanesOpen] = useState<{ todo: boolean; complete: boolean }>({
     todo: true,
     complete: false,
@@ -59,28 +39,30 @@ export default function FeedbackPage() {
   const [dragTarget, setDragTarget] = useState<FeedbackStatus | null>(null);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    const stored = window.localStorage.getItem(STORAGE_KEY);
-    if (stored) {
+    const fetchEntries = async () => {
       try {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- initial hydration from localStorage
-        setEntries(JSON.parse(stored));
+        const response = await fetch("/api/feedback", { cache: "no-store" });
+        if (!response.ok) {
+          throw new Error("Failed to load feedback entries.");
+        }
+        const data: FeedbackEntry[] = await response.json();
+        setEntries(data);
+        setEntriesError(null);
       } catch (err) {
-        console.error("Failed to parse feedback entries", err);
+        console.error(err);
+        setEntriesError("Unable to load submissions. Refresh to try again.");
+      } finally {
+        setEntriesLoading(false);
       }
-    }
-    setIsReady(true);
-  }, []);
+    };
 
-  useEffect(() => {
-    if (!isReady || typeof window === "undefined") return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  }, [entries, isReady]);
+    fetchEntries();
+  }, []);
 
   const handleFile = (file: File | undefined) => {
     if (!file) return;
     if (!file.type.startsWith("image/")) {
-      setError("Only image uploads are supported right now.");
+      setFormError("Only image uploads are supported right now.");
       return;
     }
     const reader = new FileReader();
@@ -89,7 +71,7 @@ export default function FeedbackPage() {
         src: reader.result as string,
         name: file.name,
       });
-      setError(null);
+      setFormError(null);
     };
     reader.readAsDataURL(file);
   };
@@ -101,49 +83,86 @@ export default function FeedbackPage() {
     handleFile(file);
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!form.description.trim()) {
-      setError("Please add a short summary of the issue.");
+      setFormError("Please add a short summary of the issue.");
       return;
     }
-    const newEntry: FeedbackEntry = {
-      id: crypto.randomUUID(),
+    const payload = {
       ...form,
-      image: imageData?.src,
-      imageName: imageData?.name,
-      status: "todo",
-      createdAt: new Date().toISOString(),
+      image: imageData?.src ?? null,
+      imageName: imageData?.name ?? null,
+      status: "todo" as FeedbackStatus,
       environment: {
-        browser:
-          typeof navigator !== "undefined" ? navigator.userAgent : "Unknown",
+        browser: typeof navigator !== "undefined" ? navigator.userAgent : "Unknown",
         viewport:
           typeof window !== "undefined"
             ? `${window.innerWidth}×${window.innerHeight}`
             : "Unknown",
       },
     };
-    setEntries((prev) => [newEntry, ...prev]);
-    setForm(initialForm);
-    setImageData(undefined);
-    setError(null);
+
+    setSubmitting(true);
+    try {
+      const response = await fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to submit feedback.");
+      }
+      const newEntry: FeedbackEntry = await response.json();
+      setEntries((prev) => [newEntry, ...prev]);
+      setForm(initialForm);
+      setImageData(undefined);
+      setFormError(null);
+    } catch (err) {
+      console.error(err);
+      setFormError("Something went wrong. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const updateStatus = (id: string, status: FeedbackStatus) => {
+  const refreshEntry = (updatedEntry: FeedbackEntry) => {
     setEntries((prev) =>
-      prev.map((entry) =>
-        entry.id === id
-          ? {
-              ...entry,
-              status,
-            }
-          : entry,
-      ),
+      prev.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry)),
     );
   };
 
-  const deleteEntry = (id: string) => {
-    setEntries((prev) => prev.filter((entry) => entry.id !== id));
+  const updateStatus = async (id: string, status: FeedbackStatus) => {
+    try {
+      const response = await fetch(`/api/feedback/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update status");
+      }
+      const updatedEntry: FeedbackEntry = await response.json();
+      refreshEntry(updatedEntry);
+      setEntriesError(null);
+    } catch (err) {
+      console.error(err);
+      setEntriesError("Unable to update status. Refresh and try again.");
+    }
+  };
+
+  const deleteEntry = async (id: string) => {
+    try {
+      const response = await fetch(`/api/feedback/${id}`, { method: "DELETE" });
+      if (!response.ok) {
+        throw new Error("Failed to delete entry");
+      }
+      setEntries((prev) => prev.filter((entry) => entry.id !== id));
+      setEntriesError(null);
+    } catch (err) {
+      console.error(err);
+      setEntriesError("Unable to delete entry. Refresh and try again.");
+    }
   };
 
   const stats = useMemo(() => {
@@ -492,10 +511,10 @@ export default function FeedbackPage() {
               )}
             </div>
 
-            {error && <p className="form-error">{error}</p>}
+            {formError && <p className="form-error">{formError}</p>}
 
-            <button type="submit" className="btn-primary">
-              Submit issue
+            <button type="submit" className="btn-primary" disabled={submitting}>
+              {submitting ? "Submitting…" : "Submit issue"}
             </button>
           </form>
 
@@ -507,7 +526,10 @@ export default function FeedbackPage() {
                 need more space.
               </p>
             </div>
-            {entries.length === 0 ? (
+            {entriesError && <p className="form-error">{entriesError}</p>}
+            {entriesLoading ? (
+              <p className="empty-state">Loading submissions…</p>
+            ) : entries.length === 0 ? (
               <p className="empty-state">
                 No submissions yet. Ask your testers to use the floating “Report an
                 issue” button.
