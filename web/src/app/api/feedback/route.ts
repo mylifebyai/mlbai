@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { mapRowToEntry, type FeedbackDbRow } from "@/types/feedback";
 
 const TABLE_NAME = "feedback_reports";
 
 export async function GET() {
+  const supabaseAdmin = createSupabaseAdmin();
   const { data, error } = await supabaseAdmin
     .from(TABLE_NAME)
     .select("*")
@@ -21,6 +22,7 @@ export async function GET() {
 
 export async function POST(request: Request) {
   const payload = await request.json();
+  const supabaseAdmin = createSupabaseAdmin();
 
   const { data, error } = await supabaseAdmin
     .from(TABLE_NAME)

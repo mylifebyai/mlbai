@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { supabaseAdmin } from "@/lib/supabaseAdmin";
+import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { mapRowToEntry, type FeedbackDbRow } from "@/types/feedback";
 
 const TABLE_NAME = "feedback_reports";
@@ -11,6 +11,7 @@ type RouteParams = {
 };
 
 export async function PATCH(request: Request, { params }: RouteParams) {
+  const supabaseAdmin = createSupabaseAdmin();
   const { id } = await params;
   const { status } = await request.json();
 
@@ -30,6 +31,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 }
 
 export async function DELETE(_request: Request, { params }: RouteParams) {
+  const supabaseAdmin = createSupabaseAdmin();
   const { id } = await params;
   const { error } = await supabaseAdmin.from(TABLE_NAME).delete().eq("id", id);
 
