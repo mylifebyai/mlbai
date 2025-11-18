@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Suspense } from "react";
 import { AppsLauncher } from "./components/AppsLauncher";
 import { AnalyticsReporter } from "./components/AnalyticsReporter";
 import { FeedbackButton } from "./components/FeedbackButton";
@@ -32,7 +33,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AnalyticsReporter />
+        <Suspense fallback={null}>
+          <AnalyticsReporter />
+        </Suspense>
         {children}
         <AppsLauncher />
         <AnalyticsButton />
