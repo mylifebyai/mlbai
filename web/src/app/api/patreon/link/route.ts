@@ -8,9 +8,9 @@ const STATE_COOKIE = "mlbai_patreon_state";
 const REDIRECT_COOKIE = "mlbai_patreon_redirect";
 
 export async function GET(req: NextRequest) {
-  const cookieStore = await cookies();
+  const cookiesPromise = cookies();
   const supabase = createRouteHandlerClient({
-    cookies: async () => cookieStore,
+    cookies: () => cookiesPromise,
   });
   const {
     data: { session },
