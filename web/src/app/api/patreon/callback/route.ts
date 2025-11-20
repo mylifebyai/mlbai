@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { cookies as nextCookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 
@@ -59,12 +59,12 @@ function membershipFromIdentity(identity: PatreonIdentityResponse) {
 }
 
 export async function GET(req: NextRequest) {
-	const supabase = createRouteHandlerClient({ cookies });
+	const supabase = createRouteHandlerClient({ cookies: nextCookies });
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
 	const origin = req.nextUrl.origin;
-	const redirectCookie = cookies().get(REDIRECT_COOKIE);
+	const redirectCookie = req.cookies.get(REDIRECT_COOKIE);
   const redirectPath = redirectCookie?.value ?? "/promptly";
   const baseRedirect = resolveRedirect(origin, redirectPath);
 
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
   }
 
   const state = req.nextUrl.searchParams.get("state");
-	const storedState = cookies().get(STATE_COOKIE)?.value;
+	const storedState = req.cookies.get(STATE_COOKIE)?.value;
   if (!state || !storedState || state !== storedState) {
     return buildRedirect(baseRedirect, "state_mismatch");
   }
