@@ -45,13 +45,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const authHeader = req.headers.get("authorization");
-  const bearer = authHeader?.trim().toLowerCase().startsWith("bearer ")
-    ? authHeader.slice(7)
-    : authHeader;
-  const urlSecret = req.nextUrl.searchParams.get("secret");
-  const providedSecret = bearer || urlSecret || "";
-  if (providedSecret !== syncSecret) {
+  const authHeader = req.headers.get("authorization") || "";
+  if (authHeader !== `Bearer ${syncSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
