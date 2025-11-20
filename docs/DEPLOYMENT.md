@@ -98,7 +98,7 @@ Locally, these live in `web/.env.local` (not committed). Start from `web/.env.ex
      ```
 
    - Users click `/api/patreon/link`, authorize MLBAI, and the callback stores their membership info. `<RequireAuth requirePatron>` enforces that only active supporters reach Promptly, Feedback, etc.
-   - Optional refresh: trigger `POST /api/patreon/sync` daily (Vercel cron, GitHub Actions, etc.) with header `Authorization: Bearer $PATREON_SYNC_SECRET`. This endpoint loops through stored refresh tokens, hits Patreon, and keeps `is_patron` up to date automatically.
+   - Optional refresh: trigger `POST /api/patreon/sync` daily (Vercel Cron, GitHub Actions, etc.) with either header `Authorization: Bearer $PATREON_SYNC_SECRET` or query string `?secret=$PATREON_SYNC_SECRET`. This endpoint loops through stored refresh tokens, hits Patreon, and keeps `is_patron` up to date automatically. `web/vercel.json` already registers a daily Vercel Cron hitting this path.
 
 --- 
 

@@ -61,7 +61,7 @@ All values must exist both locally (`.env.local`) and in Vercel → Project → 
   - `/api/patreon/link` kicks off OAuth against Patreon (requires a logged-in Supabase user).
   - `/api/patreon/callback` exchanges the code, fetches membership info, and upserts it into the `profiles` table (`is_patron`, `patreon_status`, `patreon_tier_id`, etc.).
   - After linking, `RequireAuth` grants access to patron-only routes (Promptly, feedback lab, future apps).
-  - `/api/patreon/sync` can be triggered by a cron job with `Authorization: Bearer PATREON_SYNC_SECRET` to refresh every supporter’s status nightly using their stored refresh tokens.
+  - `/api/patreon/sync` can be triggered by a cron job with either `Authorization: Bearer PATREON_SYNC_SECRET` or `?secret=PATREON_SYNC_SECRET` to refresh every supporter’s status nightly using their stored refresh tokens. `vercel.json` schedules this daily.
 - Keep a `profiles` table keyed by `auth.users.id` with an `is_admin` flag. Run the SQL snippet in `docs/DEPLOYMENT.md` to seed it and mark `mylife.byai@gmail.com` as the canonical admin so there’s always a break-glass account.
 - Supabase handles password resets and verification emails—configure them in Supabase → Authentication.
 - Future Patreon OAuth will simply add linked IDs to the Supabase profile; the provider is already in place.

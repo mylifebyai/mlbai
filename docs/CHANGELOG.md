@@ -16,7 +16,8 @@ Human-readable log of notable changes to the public site and architecture. For t
   - `/api/patreon/link` + `/api/patreon/callback` handle OAuth, fetch membership info, and store it on the `profiles` row (`is_patron`, status, tier).
   - `RequireAuth` can now enforce Patreon memberships, and both Promptly + the feedback lab require an active patron status before rendering.
   - Apps launcher + login UI surface Patreon state and provide a linking CTA.
-  - Added `/api/patreon/sync` so a nightly cron (authorized via `PATREON_SYNC_SECRET`) can refresh membership status using Patreon refresh tokens.
+  - Added `/api/patreon/sync` so a nightly job (using `PATREON_SYNC_SECRET` via header or `?secret=`) can refresh membership status using Patreon refresh tokens.
+  - `vercel.json` schedules that nightly job at 08:00 UTC so no manual setup is needed after deploy.
 - Shipped the Next.js landing page (`web/src/app/page.tsx`) as the primary experience.
 - Deployed the `web/` app to Vercel as project `mlbai` with automatic builds from the `main` branch.
 - Wired custom domains via GoDaddy DNS:
