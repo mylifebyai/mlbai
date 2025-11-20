@@ -42,11 +42,11 @@ function resolveRedirect(origin: string, path?: string | null) {
 }
 
 function buildRedirect(url: string, status: string) {
-  const target = url.includes("?") ? `${url}&patreon=${status}` : `${url}?patreon=${status}`;
-  const response = NextResponse.redirect(target);
-  response.cookies.delete(STATE_COOKIE, { path: "/" });
-  response.cookies.delete(REDIRECT_COOKIE, { path: "/" });
-  return response;
+	const target = url.includes("?") ? `${url}&patreon=${status}` : `${url}?patreon=${status}`;
+	const response = NextResponse.redirect(target);
+	response.cookies.delete(STATE_COOKIE);
+	response.cookies.delete(REDIRECT_COOKIE);
+	return response;
 }
 
 function membershipFromIdentity(identity: PatreonIdentityResponse) {
