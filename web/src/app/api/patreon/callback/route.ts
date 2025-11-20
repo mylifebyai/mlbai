@@ -59,8 +59,10 @@ function membershipFromIdentity(identity: PatreonIdentityResponse) {
 }
 
 export async function GET(req: NextRequest) {
-	const cookieStore = await cookies();
-	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+  const cookieStore = await cookies();
+  const supabase = createRouteHandlerClient({
+    cookies: async () => cookieStore,
+  });
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
