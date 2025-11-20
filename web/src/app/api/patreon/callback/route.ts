@@ -59,14 +59,13 @@ function membershipFromIdentity(identity: PatreonIdentityResponse) {
 }
 
 export async function GET(req: NextRequest) {
-  const cookieStore = cookies();
-  const supabase = createRouteHandlerClient({ cookies });
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  const origin = req.nextUrl.origin;
-  const redirectCookie = cookieStore.get(REDIRECT_COOKIE);
+	const cookieStore = cookies();
+	const supabase = createRouteHandlerClient({ cookies: () => cookieStore });
+	const {
+		data: { session },
+	} = await supabase.auth.getSession();
+	const origin = req.nextUrl.origin;
+	const redirectCookie = cookieStore.get(REDIRECT_COOKIE);
   const redirectPath = redirectCookie?.value ?? "/promptly";
   const baseRedirect = resolveRedirect(origin, redirectPath);
 
