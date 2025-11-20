@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies as nextCookies } from "next/headers";
 import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs";
 import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 
@@ -59,7 +58,7 @@ function membershipFromIdentity(identity: PatreonIdentityResponse) {
 }
 
 export async function GET(req: NextRequest) {
-	const supabase = createRouteHandlerClient({ cookies: nextCookies });
+	const supabase = createRouteHandlerClient({ cookies: () => req.cookies });
 	const {
 		data: { session },
 	} = await supabase.auth.getSession();
