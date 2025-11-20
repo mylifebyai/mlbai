@@ -2,19 +2,17 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useAuth } from './SupabaseAuthProvider';
 
 const apps = [
-  { name: 'Promptly', icon: '🧠', href: '/promptly', status: 'Live', requiresAuth: true, requiresPatron: true },
-  { name: 'Tokens', icon: '🎯', href: '#tokens', status: 'Coming soon', requiresAuth: false, requiresPatron: false },
-  { name: 'Fitness', icon: '💪', href: '#fitness', status: 'Coming soon', requiresAuth: false, requiresPatron: false },
-  { name: 'Diet', icon: '🥗', href: '#diet', status: 'Coming soon', requiresAuth: false, requiresPatron: false },
-] as const;
+  { name: 'Promptly', icon: '🧠', href: '/promptly', status: 'Live' },
+  { name: 'Tokens', icon: '🎯', href: '#tokens', status: 'Coming soon' },
+  { name: 'Fitness', icon: '💪', href: '#fitness', status: 'Coming soon' },
+  { name: 'Diet', icon: '🥗', href: '#diet', status: 'Coming soon' },
+];
 
 export function AppsLauncher() {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const { user, profile } = useAuth();
 
   useEffect(() => {
     if (!open) return;
@@ -51,38 +49,17 @@ export function AppsLauncher() {
         Apps
       </button>
       <div className={`apps-launcher-stack ${open ? 'is-open' : ''}`} aria-hidden={!open}>
-        {stackItems.map((item) => {
-          const needsLogin = item.requiresAuth && !user;
-          const needsPatron = item.requiresPatron && (!profile || !profile.is_patron);
-          const locked = needsLogin || needsPatron;
-          const href = locked
-            ? needsLogin
-              ? `/login?redirect=${encodeURIComponent(item.href)}`
-              : `/api/patreon/link?redirect=${encodeURIComponent(item.href)}`
-            : item.href;
-          const statusLabel = locked
-            ? needsLogin
-              ? 'Login required'
-              : 'Patreon required'
-            : item.status;
-          return (
-            <Link
-              key={item.name}
-              href={href}
-              className="apps-launcher-item"
-              data-locked={locked}
-              aria-disabled={locked}
-            >
-              <span className="apps-launcher-icon" aria-hidden="true">
-                {item.icon}
-              </span>
-              <span className="apps-launcher-label">
-                {item.name}
-                <small>{statusLabel}</small>
-              </span>
-            </Link>
-          );
-        })}
+        {stackItems.map((item) => (
+          <Link key={item.name} href={item.href} className="apps-launcher-item">
+            <span className="apps-launcher-icon" aria-hidden="true">
+              {item.icon}
+            </span>
+            <span className="apps-launcher-label">
+              {item.name}
+              <small>{item.status}</small>
+            </span>
+          </Link>
+        ))}
       </div>
     </div>
   );

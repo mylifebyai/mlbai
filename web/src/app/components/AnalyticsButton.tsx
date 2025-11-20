@@ -1,15 +1,6 @@
-"use client";
-
 import Link from "next/link";
-import { useAuth } from "./SupabaseAuthProvider";
 
 export function AnalyticsButton() {
-  const { user, profile, isLoading } = useAuth();
-
-  if (isLoading || !user || !profile?.is_admin) {
-    return null;
-  }
-
   return (
     <Link
       href="/analytics"

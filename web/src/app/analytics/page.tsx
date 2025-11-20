@@ -1,8 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { redirect } from "next/navigation";
 import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
-import { createSupabaseServerClient } from "@/lib/supabaseServer";
 
 export const metadata: Metadata = {
   title: "Analytics Snapshot – My Life, By AI",
@@ -182,39 +180,6 @@ function computeAvgTimeByPath(events: SiteEvent[]): AvgTimeItem[] {
 }
 
 export default async function AnalyticsPage() {
-  const supabase = createSupabaseServerClient();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession();
-
-  if (!session) {
-    redirect("/login?redirect=/analytics");
-  }
-
-  const supabaseAdmin = createSupabaseAdmin();
-  const { data: profile, error: profileError } = await supabaseAdmin
-    .from("profiles")
-    .select("is_admin")
-    .eq("id", session.user.id)
-    .single();
-
-  if (profileError || !profile?.is_admin) {
-    return (
-      <main className="auth-gate">
-        <div className="auth-gate-card">
-          <p className="auth-eyebrow">Admin access</p>
-          <h1>Admins only</h1>
-          <p className="auth-lede">
-            This analytics view is limited to MLBAI admins. Log in with the owner account to continue.
-          </p>
-          <Link className="auth-button" href="/login?redirect=/analytics">
-            Switch accounts
-          </Link>
-        </div>
-      </main>
-    );
-  }
-
   const snapshot = await getAnalyticsSnapshot();
 
   return (
