@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { ArthurHeroChat } from "./components/ArthurHeroChat";
 
 const stats = [
@@ -112,6 +113,25 @@ export default function Home() {
             <div className="brand">
               <span className="brand-icon">AI</span>
               My Life, By AI
+            </div>
+            <div className="nav-links">
+              <a
+                href="https://www.youtube.com/@mylifebyai"
+                target="_blank"
+                rel="noreferrer"
+              >
+                YouTube
+              </a>
+              <a
+                href="https://www.patreon.com/c/mylifebyai"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Patreon
+              </a>
+              <Link href="/privacy">Privacy</Link>
+              <Link href="/terms">Terms</Link>
+              <Link href="/login">Log in</Link>
             </div>
           </nav>
         </div>

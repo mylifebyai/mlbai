@@ -10,6 +10,7 @@ import {
 } from "react";
 import Link from "next/link";
 import type { FeedbackEntry, FeedbackStatus } from "@/types/feedback";
+import { RequireAuth } from "../components/RequireAuth";
 
 const initialForm = {
   name: "",
@@ -335,7 +336,14 @@ export default function FeedbackPage() {
   );
 
   return (
-    <main className="feedback-page">
+    <RequireAuth
+      title="Log in to submit feedback"
+      description="The feedback lab is for members actively testing MLBAI experiments."
+      redirectTo="/feedback"
+      requirePatron
+      patronMessage="Only current Patreon supporters can drop bug reports and experiment notes."
+    >
+      <main className="feedback-page">
       <div className="wrapper app-shell">
         <div className="feedback-back">
           <Link href="/" className="feedback-back-link" aria-label="Back to home">
@@ -544,6 +552,7 @@ export default function FeedbackPage() {
         </section>
 
       </div>
-    </main>
+      </main>
+    </RequireAuth>
   );
 }

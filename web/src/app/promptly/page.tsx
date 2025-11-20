@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { RequireAuth } from '../components/RequireAuth';
 
 type Mode = 'improve-existing' | 'new';
 
@@ -130,7 +131,14 @@ export default function PromptlyPage() {
   };
 
   return (
-    <main className="promptly-page">
+    <RequireAuth
+      title="Log in to use Promptly"
+      description="Promptly lives inside the members area. Sign in to keep building prompts with Arthur."
+      redirectTo="/promptly"
+      requirePatron
+      patronMessage="Promptly is available to current Patreon supporters. Link your membership to keep building prompts."
+    >
+      <main className="promptly-page">
       <section className="wrapper app-shell promptly-hero">
         <div className="promptly-back-wrap">
           <Link className="promptly-back-link" href="/" aria-label="Back to home">
@@ -216,6 +224,7 @@ export default function PromptlyPage() {
           <p className="prompt-note">Refresh keeps your mode selection and clears the conversation for a new prompt.</p>
         </div>
       </section>
-    </main>
+      </main>
+    </RequireAuth>
   );
 }
