@@ -13,7 +13,7 @@ const baseApps = [
 ];
 
 export function AppsLauncher() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -69,8 +69,7 @@ export function AppsLauncher() {
             <button
               key={item.name}
               type="button"
-              onClick={async () => {
-                await signOut();
+              onClick={() => {
                 router.push('/login');
               }}
               className="apps-launcher-item"

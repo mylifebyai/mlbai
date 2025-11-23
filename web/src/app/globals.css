@@ -1701,6 +1701,32 @@ footer {
   gap: 0.5rem;
 }
 
+.auth-status-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.35rem;
+}
+
+.auth-inline-actions {
+  margin-top: 0.65rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.auth-inline-link {
+  color: var(--accent-dark);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-inline-link:hover {
+  text-decoration: underline;
+}
+
 /* Feedback page styles */
 .feedback-page {
   padding-bottom: var(--section-padding);

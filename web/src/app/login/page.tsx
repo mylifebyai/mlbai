@@ -37,6 +37,13 @@ function LoginInner() {
     setStatusMessage(null);
     setSubmitting(true);
 
+    if (user) {
+      await signOut();
+      setSubmitting(false);
+      router.replace("/login");
+      return;
+    }
+
     const signInResult = await signInWithPassword({ email, password });
     if (!signInResult.error) {
       setRedirecting(true);
@@ -80,14 +87,6 @@ function LoginInner() {
     setSubmitting(false);
   };
 
-  const handleSignOut = async () => {
-    setFormError(null);
-    setStatusMessage(null);
-    await signOut();
-    setSubmitting(false);
-    setRedirecting(false);
-  };
-
   return (
     <main className="auth-page">
       <section className="wrapper app-shell auth-shell">
@@ -112,17 +111,11 @@ function LoginInner() {
                   <p className="auth-status-label">Signed in as</p>
                   <p className="auth-status-email">{user.email}</p>
                 </div>
-                <div className="auth-status-actions">
-                  <button
-                    type="button"
-                    className="btn-secondary"
-                    onClick={() => router.replace(redirectPath)}
-                  >
-                    Continue
-                  </button>
-                  <button type="button" className="btn-ghost" onClick={handleSignOut}>
-                    Sign out
-                  </button>
+                <div className="auth-inline-actions">
+                  <span>Need a reset?</span>
+                  <Link href="/account/delete" className="auth-inline-link">
+                    Delete account
+                  </Link>
                 </div>
               </div>
             ) : null}
@@ -130,34 +123,38 @@ function LoginInner() {
 
           <div className="auth-card">
             <form className="auth-form" onSubmit={handleSubmit}>
-              <div className="input-group">
-                <label htmlFor="email">Email</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={submitting || redirecting || loading}
-                  placeholder="you@example.com"
-                />
-              </div>
-              <div className="input-group">
-                <label htmlFor="password">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={submitting || redirecting || loading}
-                  placeholder="••••••••"
-                />
-              </div>
+              {!user && (
+                <>
+                  <div className="input-group">
+                    <label htmlFor="email">Email</label>
+                    <input
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      disabled={submitting || redirecting || loading}
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  <div className="input-group">
+                    <label htmlFor="password">Password</label>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={submitting || redirecting || loading}
+                      placeholder="••••••••"
+                    />
+                  </div>
+                </>
+              )}
               {formError ? <p className="form-error">{formError}</p> : null}
               {statusMessage ? <p className="form-success">{statusMessage}</p> : null}
               <button
@@ -165,11 +162,13 @@ function LoginInner() {
                 className="btn-primary"
                 disabled={submitting || redirecting || loading}
               >
-                {submitting
-                  ? "Working…"
-                  : redirecting
-                    ? "Redirecting…"
-                    : "Continue"}
+                {user
+                  ? "Sign out"
+                  : submitting
+                    ? "Working…"
+                    : redirecting
+                      ? "Redirecting…"
+                      : "Continue"}
               </button>
               <p className="auth-hint">
                 Need access or a reset? Reach out to the admin to confirm your account.
