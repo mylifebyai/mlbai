@@ -1,6 +1,17 @@
+ "use client";
+ 
 import Link from "next/link";
+import { useAuth } from "../providers/AuthProvider";
+import { useProfileRole } from "../hooks/useProfileRole";
 
 export function AnalyticsButton() {
+  const { user } = useAuth();
+  const { role } = useProfileRole(user?.id);
+
+  if (role !== "admin") {
+    return null;
+  }
+
   return (
     <Link
       href="/analytics"

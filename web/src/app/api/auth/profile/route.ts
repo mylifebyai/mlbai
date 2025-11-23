@@ -8,10 +8,10 @@ export async function POST(request: Request) {
     const body = await request.json().catch(() => ({}));
     const userId = typeof body.userId === "string" ? body.userId : null;
     const email = typeof body.email === "string" ? body.email : null;
-    const role =
-      typeof body.role === "string" && ALLOWED_ROLES.has(body.role)
-        ? body.role
-        : "regular";
+  const role =
+    typeof body.role === "string" && ALLOWED_ROLES.has(body.role)
+      ? body.role
+      : "tester";
 
     if (!userId || !email) {
       return NextResponse.json(

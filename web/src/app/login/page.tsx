@@ -61,7 +61,7 @@ function LoginInner() {
       const profileRes = await fetch("/api/auth/profile", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: newUserId, email, role: "regular" }),
+        body: JSON.stringify({ userId: newUserId, email, role: "tester" }),
       });
       if (!profileRes.ok) {
         setFormError("Account created, but failed to finish setup. Please try again.");

@@ -10,6 +10,8 @@ import {
 } from "react";
 import Link from "next/link";
 import type { FeedbackEntry, FeedbackStatus } from "@/types/feedback";
+import { useAuth } from "../providers/AuthProvider";
+import { useProfileRole } from "../hooks/useProfileRole";
 
 const initialForm = {
   name: "",
@@ -22,6 +24,8 @@ const initialForm = {
 };
 
 export default function FeedbackPage() {
+  const { user, session, loading: authLoading } = useAuth();
+  const { role, loading: roleLoading } = useProfileRole(user?.id);
   const [form, setForm] = useState(initialForm);
   const [entries, setEntries] = useState<FeedbackEntry[]>([]);
   const [imageData, setImageData] = useState<{ src: string; name: string }>();
@@ -39,9 +43,17 @@ export default function FeedbackPage() {
   const [dragTarget, setDragTarget] = useState<FeedbackStatus | null>(null);
 
   useEffect(() => {
+    if (!user || roleLoading) return;
+    if (role !== "admin" && role !== "tester") return;
+
     const fetchEntries = async () => {
       try {
-        const response = await fetch("/api/feedback", { cache: "no-store" });
+        const response = await fetch("/api/feedback", {
+          cache: "no-store",
+          headers: session?.access_token
+            ? { Authorization: `Bearer ${session.access_token}` }
+            : undefined,
+        });
         if (!response.ok) {
           throw new Error("Failed to load feedback entries.");
         }
@@ -57,7 +69,7 @@ export default function FeedbackPage() {
     };
 
     fetchEntries();
-  }, []);
+  }, [user, role, roleLoading, session?.access_token]);
 
   const handleFile = (file: File | undefined) => {
     if (!file) return;
@@ -85,6 +97,14 @@ export default function FeedbackPage() {
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (role !== "admin" && role !== "tester") {
+      setFormError("You need tester or admin access to submit feedback.");
+      return;
+    }
+    if (!session?.access_token) {
+      setFormError("You must be signed in to submit feedback.");
+      return;
+    }
     if (!form.description.trim()) {
       setFormError("Please add a short summary of the issue.");
       return;
@@ -107,7 +127,10 @@ export default function FeedbackPage() {
     try {
       const response = await fetch("/api/feedback", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify(payload),
       });
       if (!response.ok) {
@@ -133,10 +156,17 @@ export default function FeedbackPage() {
   };
 
   const updateStatus = async (id: string, status: FeedbackStatus) => {
+    if (!session?.access_token) {
+      setEntriesError("You must be signed in to update status.");
+      return;
+    }
     try {
       const response = await fetch(`/api/feedback/${id}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
         body: JSON.stringify({ status }),
       });
       if (!response.ok) {
@@ -152,8 +182,17 @@ export default function FeedbackPage() {
   };
 
   const deleteEntry = async (id: string) => {
+    if (!session?.access_token) {
+      setEntriesError("You must be signed in to delete entries.");
+      return;
+    }
     try {
-      const response = await fetch(`/api/feedback/${id}`, { method: "DELETE" });
+      const response = await fetch(`/api/feedback/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
       if (!response.ok) {
         throw new Error("Failed to delete entry");
       }
@@ -366,181 +405,196 @@ export default function FeedbackPage() {
         </section>
 
         <section className="feedback-grid">
-          <form className="feedback-form" onSubmit={handleSubmit}>
-            <div className="feedback-form-header">
-              <h2>Submit an issue</h2>
-              <p>
-                Add context so we can recreate the problem quickly. Include page
-                links, what you expected to happen, and any screenshots.
-              </p>
+          {roleLoading || authLoading ? (
+            <p>Loading access…</p>
+          ) : role !== "admin" && role !== "tester" ? (
+            <div className="feedback-admin">
+              <p>You need tester or admin access to view and submit feedback.</p>
+              {!user ? (
+                <Link href="/login" className="btn-primary" style={{ display: "inline-block" }}>
+                  Sign in
+                </Link>
+              ) : null}
             </div>
+          ) : (
+            <>
+              <form className="feedback-form" onSubmit={handleSubmit}>
+                <div className="feedback-form-header">
+                  <h2>Submit an issue</h2>
+                  <p>
+                    Add context so we can recreate the problem quickly. Include page
+                    links, what you expected to happen, and any screenshots.
+                  </p>
+                </div>
 
-            <div className="input-group">
-              <label htmlFor="name">Your name (optional)</label>
-              <input
-                id="name"
-                type="text"
-                value={form.name}
-                onChange={(event) =>
-                  setForm({ ...form, name: event.target.value })
-                }
-                placeholder="e.g. Test Lead A"
-              />
-            </div>
+                <div className="input-group">
+                  <label htmlFor="name">Your name (optional)</label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={form.name}
+                    onChange={(event) =>
+                      setForm({ ...form, name: event.target.value })
+                    }
+                    placeholder="e.g. Test Lead A"
+                  />
+                </div>
 
-            <div className="input-group">
-              <label htmlFor="contact">Contact or Discord handle</label>
-              <input
-                id="contact"
-                type="text"
-                value={form.contact}
-                onChange={(event) =>
-                  setForm({ ...form, contact: event.target.value })
-                }
-                placeholder="@tester or email"
-              />
-            </div>
+                <div className="input-group">
+                  <label htmlFor="contact">Contact or Discord handle</label>
+                  <input
+                    id="contact"
+                    type="text"
+                    value={form.contact}
+                    onChange={(event) =>
+                      setForm({ ...form, contact: event.target.value })
+                    }
+                    placeholder="@tester or email"
+                  />
+                </div>
 
-            <div className="field-row">
-              <div className="input-group">
-                <label htmlFor="issue-type">Issue type</label>
-                <select
-                  id="issue-type"
-                  value={form.issueType}
-                  onChange={(event) =>
-                    setForm({ ...form, issueType: event.target.value })
-                  }
-                >
-                  <option>Bug</option>
-                  <option>UI</option>
-                  <option>Content</option>
-                  <option>Performance</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              <div className="input-group">
-                <label htmlFor="severity">Severity</label>
-                <select
-                  id="severity"
-                  value={form.severity}
-                  onChange={(event) =>
-                    setForm({ ...form, severity: event.target.value })
-                  }
-                >
-                  <option>Low</option>
-                  <option>Medium</option>
-                  <option>High</option>
-                  <option>Critical</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="affectedArea">Affected page or feature</label>
-              <input
-                id="affectedArea"
-                type="text"
-                value={form.affectedArea}
-                onChange={(event) =>
-                  setForm({ ...form, affectedArea: event.target.value })
-                }
-                placeholder="e.g. Promptly onboarding modal"
-              />
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="description">What happened?</label>
-              <textarea
-                id="description"
-                value={form.description}
-                required
-                onChange={(event) =>
-                  setForm({ ...form, description: event.target.value })
-                }
-                placeholder="Share a quick summary of the issue"
-              />
-            </div>
-
-            <div className="input-group">
-              <label htmlFor="steps">Steps to reproduce</label>
-              <textarea
-                id="steps"
-                value={form.steps}
-                onChange={(event) =>
-                  setForm({ ...form, steps: event.target.value })
-                }
-                placeholder="1) Visit /promptly 2) Click …"
-              />
-            </div>
-
-            <div
-              className={`dropzone ${dropActive ? "dropzone-active" : ""}`}
-              onDragOver={(event) => {
-                event.preventDefault();
-                setDropActive(true);
-              }}
-              onDragLeave={(event) => {
-                event.preventDefault();
-                setDropActive(false);
-              }}
-              onDrop={handleDrop}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                id="screenshot"
-                onChange={(event) => handleFile(event.target.files?.[0])}
-              />
-              <label htmlFor="screenshot">
-                <strong>Drop a screenshot</strong> or click to upload
-              </label>
-              {imageData && (
-                <div className="dropzone-preview">
-                  <img src={imageData.src} alt={imageData.name} />
-                  <div>
-                    <p>{imageData.name}</p>
-                    <button
-                      type="button"
-                      onClick={() => setImageData(undefined)}
+                <div className="field-row">
+                  <div className="input-group">
+                    <label htmlFor="issue-type">Issue type</label>
+                    <select
+                      id="issue-type"
+                      value={form.issueType}
+                      onChange={(event) =>
+                        setForm({ ...form, issueType: event.target.value })
+                      }
                     >
-                      Remove
-                    </button>
+                      <option>Bug</option>
+                      <option>UI</option>
+                      <option>Content</option>
+                      <option>Performance</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+
+                  <div className="input-group">
+                    <label htmlFor="severity">Severity</label>
+                    <select
+                      id="severity"
+                      value={form.severity}
+                      onChange={(event) =>
+                        setForm({ ...form, severity: event.target.value })
+                      }
+                    >
+                      <option>Low</option>
+                      <option>Medium</option>
+                      <option>High</option>
+                      <option>Critical</option>
+                    </select>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {formError && <p className="form-error">{formError}</p>}
+                <div className="input-group">
+                  <label htmlFor="affectedArea">Affected page or feature</label>
+                  <input
+                    id="affectedArea"
+                    type="text"
+                    value={form.affectedArea}
+                    onChange={(event) =>
+                      setForm({ ...form, affectedArea: event.target.value })
+                    }
+                    placeholder="e.g. Promptly onboarding modal"
+                  />
+                </div>
 
-            <button type="submit" className="btn-primary" disabled={submitting}>
-              {submitting ? "Submitting…" : "Submit issue"}
-            </button>
-          </form>
+                <div className="input-group">
+                  <label htmlFor="description">What happened?</label>
+                  <textarea
+                    id="description"
+                    value={form.description}
+                    required
+                    onChange={(event) =>
+                      setForm({ ...form, description: event.target.value })
+                    }
+                    placeholder="Share a quick summary of the issue"
+                  />
+                </div>
 
-          <div className="feedback-admin">
-            <div className="feedback-form-header">
-              <h2>Admin review</h2>
-              <p>
-                Drag cards between To Do and Complete, or collapse a lane when you
-                need more space.
-              </p>
-            </div>
-            {entriesError && <p className="form-error">{entriesError}</p>}
-            {entriesLoading ? (
-              <p className="empty-state">Loading submissions…</p>
-            ) : entries.length === 0 ? (
-              <p className="empty-state">
-                No submissions yet. Ask your testers to use the floating “Report an
-                issue” button.
-              </p>
-            ) : (
-              <div className="feedback-lanes">
-                {renderLane("todo", "To Do", stats.todos)}
-                {renderLane("complete", "Complete", stats.done)}
+                <div className="input-group">
+                  <label htmlFor="steps">Steps to reproduce</label>
+                  <textarea
+                    id="steps"
+                    value={form.steps}
+                    onChange={(event) =>
+                      setForm({ ...form, steps: event.target.value })
+                    }
+                    placeholder="1) Visit /promptly 2) Click …"
+                  />
+                </div>
+
+                <div
+                  className={`dropzone ${dropActive ? "dropzone-active" : ""}`}
+                  onDragOver={(event) => {
+                    event.preventDefault();
+                    setDropActive(true);
+                  }}
+                  onDragLeave={(event) => {
+                    event.preventDefault();
+                    setDropActive(false);
+                  }}
+                  onDrop={handleDrop}
+                >
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="screenshot"
+                    onChange={(event) => handleFile(event.target.files?.[0])}
+                  />
+                  <label htmlFor="screenshot">
+                    <strong>Drop a screenshot</strong> or click to upload
+                  </label>
+                  {imageData && (
+                    <div className="dropzone-preview">
+                      <img src={imageData.src} alt={imageData.name} />
+                      <div>
+                        <p>{imageData.name}</p>
+                        <button
+                          type="button"
+                          onClick={() => setImageData(undefined)}
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {formError && <p className="form-error">{formError}</p>}
+
+                <button type="submit" className="btn-primary" disabled={submitting}>
+                  {submitting ? "Submitting…" : "Submit issue"}
+                </button>
+              </form>
+
+              <div className="feedback-admin">
+                <div className="feedback-form-header">
+                  <h2>Admin review</h2>
+                  <p>
+                    Drag cards between To Do and Complete, or collapse a lane when you
+                    need more space.
+                  </p>
+                </div>
+                {entriesError && <p className="form-error">{entriesError}</p>}
+                {entriesLoading ? (
+                  <p className="empty-state">Loading submissions…</p>
+                ) : entries.length === 0 ? (
+                  <p className="empty-state">
+                    No submissions yet. Ask your testers to use the floating “Report an
+                    issue” button.
+                  </p>
+                ) : (
+                  <div className="feedback-lanes">
+                    {renderLane("todo", "To Do", stats.todos)}
+                    {renderLane("complete", "Complete", stats.done)}
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
         </section>
 
       </div>
