@@ -49,19 +49,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     loadSession();
 
-    const {
-      data: authListener,
-      error: listenerError,
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       setLoading(false);
       setError(null);
     });
-
-    if (listenerError) {
-      console.error("Auth listener registration failed", listenerError);
-    }
 
     return () => {
       isMounted = false;
