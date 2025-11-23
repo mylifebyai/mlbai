@@ -6,6 +6,7 @@ import { AppsLauncher } from "./components/AppsLauncher";
 import { AnalyticsReporter } from "./components/AnalyticsReporter";
 import { FeedbackButton } from "./components/FeedbackButton";
 import { AnalyticsButton } from "./components/AnalyticsButton";
+import { AuthProvider } from "./providers/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,13 +34,15 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <Suspense fallback={null}>
-          <AnalyticsReporter />
-        </Suspense>
-        {children}
-        <AppsLauncher />
-        <AnalyticsButton />
-        <FeedbackButton />
+        <AuthProvider>
+          <Suspense fallback={null}>
+            <AnalyticsReporter />
+          </Suspense>
+          {children}
+          <AppsLauncher />
+          <AnalyticsButton />
+          <FeedbackButton />
+        </AuthProvider>
       </body>
     </html>
   );
