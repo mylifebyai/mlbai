@@ -73,10 +73,8 @@ export default async function DocPage({ params }: { params: { slug: string } }) 
             <h1>{doc.title}</h1>
           </header>
 
-          <div className="doc-body">
-            <ReactMarkdown remarkPlugins={[remarkGfm]} className="doc-markdown">
-              {doc.content}
-            </ReactMarkdown>
+          <div className="doc-body doc-markdown">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{doc.content}</ReactMarkdown>
           </div>
         </article>
       </section>
