@@ -64,7 +64,14 @@ export default function AnalyticsClient() {
           },
         });
         if (!res.ok) {
-          throw new Error("Unable to load analytics. Check admin access or API.");
+          let msg = "Unable to load analytics. Check admin access or API.";
+          try {
+            const errJson = await res.json();
+            if (errJson?.error) msg = errJson.error;
+          } catch {
+            // ignore
+          }
+          throw new Error(`${msg} (status ${res.status})`);
         }
         const data: AnalyticsSnapshot = await res.json();
         setSnapshot(data);

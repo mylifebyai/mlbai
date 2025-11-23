@@ -1,39 +1,33 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { createClient } from "@supabase/supabase-js";
 
 const ALLOWED_ROLES = new Set(["admin", "tester", "regular"]);
 
-function decodeUserIdFromToken(token: string): string | null {
-  try {
-    const [, payload] = token.split(".");
-    if (!payload) return null;
-    const normalized = payload.replace(/-/g, "+").replace(/_/g, "/");
-    const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
-    const json = Buffer.from(padded, "base64").toString("utf8");
-    const data = JSON.parse(json);
-    return typeof data.sub === "string" ? data.sub : typeof data.user_id === "string" ? data.user_id : null;
-  } catch {
-    return null;
-  }
-}
-
 async function requireAdmin(request: Request) {
-  const supabaseAdmin = createSupabaseAdmin();
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnonKey) {
+    return { error: NextResponse.json({ error: "Supabase env missing" }, { status: 500 }) };
+  }
+
   const authHeader = request.headers.get("authorization") ?? "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : null;
   if (!token) {
     return { error: NextResponse.json({ error: "Missing token" }, { status: 401 }) };
   }
 
-  const userId = decodeUserIdFromToken(token);
-  if (!userId) {
+  const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+  const { data: authUser, error: authError } = await supabaseAuth.auth.getUser(token);
+  if (authError || !authUser?.user) {
     return { error: NextResponse.json({ error: "Invalid token" }, { status: 401 }) };
   }
 
+  const supabaseAdmin = createSupabaseAdmin();
   const { data: profile, error: profileError } = await supabaseAdmin
     .from("profiles")
     .select("role")
-    .eq("id", userId)
+    .eq("id", authUser.user.id)
     .single();
 
   if (profileError) {

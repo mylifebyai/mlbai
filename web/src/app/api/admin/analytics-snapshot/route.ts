@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { createClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 
@@ -102,12 +103,20 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Missing token" }, { status: 401 });
     }
 
-    const supabaseAdmin = createSupabaseAdmin();
-    const { data: authUser, error: authError } = await supabaseAdmin.auth.getUser(token);
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (!supabaseUrl || !supabaseAnonKey) {
+      return NextResponse.json({ error: "Supabase env missing" }, { status: 500 });
+    }
+
+    // Validate token with anon client
+    const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
+    const { data: authUser, error: authError } = await supabaseAuth.auth.getUser(token);
     if (authError || !authUser?.user) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    const supabaseAdmin = createSupabaseAdmin();
     const { data: profile } = await supabaseAdmin
       .from("profiles")
       .select("role")

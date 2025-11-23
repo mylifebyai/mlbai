@@ -6,6 +6,7 @@ import { AppsLauncher } from "./components/AppsLauncher";
 import { AnalyticsReporter } from "./components/AnalyticsReporter";
 import { FeedbackButton } from "./components/FeedbackButton";
 import { AnalyticsButton } from "./components/AnalyticsButton";
+import { AdminButton } from "./components/AdminButton";
 import { AuthProvider } from "./providers/AuthProvider";
 
 const geistSans = Geist({
@@ -40,6 +41,7 @@ export default function RootLayout({
           </Suspense>
           {children}
           <AppsLauncher />
+          <AdminButton />
           <AnalyticsButton />
           <FeedbackButton />
         </AuthProvider>
