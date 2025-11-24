@@ -256,8 +256,10 @@ export async function fetchPatreonMembership(accessToken: string, campaignId: st
     membershipAttrs?.last_charge_status ??
     membershipAttrs?.pledge_status ??
     null;
+  const tierRel = membershipRels?.currently_entitled_tiers as Record<string, unknown> | undefined;
+  const tierData = Array.isArray(tierRel?.data) ? tierRel.data : [];
   const tierId =
-    membershipRels?.currently_entitled_tiers?.data?.[0]?.id ??
+    (tierData[0] as { id?: unknown } | undefined)?.id ??
     membershipAttrs?.currently_entitled_tier_id ??
     null;
   const entitledCents = membershipAttrs?.currently_entitled_amount_cents ?? null;
