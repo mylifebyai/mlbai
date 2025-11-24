@@ -263,7 +263,9 @@ export async function fetchPatreonMembership(accessToken: string, campaignId: st
     membershipAttrs?.currently_entitled_tier_id ??
     null;
   const entitledCents = membershipAttrs?.currently_entitled_amount_cents ?? null;
-  const resolvedCampaignId = membershipRels?.campaign?.data?.id ?? null;
+  const campaignRel = membershipRels?.campaign as Record<string, unknown> | undefined;
+  const campaignData = (campaignRel?.data as Record<string, unknown> | undefined)?.id ?? null;
+  const resolvedCampaignId = typeof campaignData === "string" ? campaignData : null;
 
   return {
     patreonUserId,
