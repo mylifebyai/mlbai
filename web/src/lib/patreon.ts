@@ -184,11 +184,10 @@ function pickMembership(included: unknown, campaignId: string | null) {
   ) as Array<Record<string, unknown>>;
 
   if (campaignId) {
-    const targeted = memberships.find(
-      (member) =>
-        member.relationships?.campaign?.data?.id &&
-        String(member.relationships.campaign.data.id) === campaignId,
-    );
+    const targeted = memberships.find((member: any) => {
+      const campaign = member.relationships?.campaign?.data?.id;
+      return campaign && String(campaign) === campaignId;
+    });
     if (targeted) return targeted;
   }
 
