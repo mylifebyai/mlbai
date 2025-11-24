@@ -1,19 +1,12 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { createClient } from "@supabase/supabase-js";
+import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 
-const ALLOWED_ROLES = new Set(["admin", "tester", "regular"]);
+const PROFILE_FIELDS =
+  "id, email, role, patreon_user_id, patreon_tier_id, patreon_status, patreon_last_sync_at";
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   try {
-    const body = await request.json().catch(() => ({}));
-    const userId = typeof body.userId === "string" ? body.userId : null;
-    const email = typeof body.email === "string" ? body.email : null;
-    const role =
-      typeof body.role === "string" && ALLOWED_ROLES.has(body.role)
-        ? body.role
-        : "regular";
-
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     if (!supabaseUrl || !supabaseAnonKey) {
@@ -28,31 +21,43 @@ export async function POST(request: Request) {
 
     const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey);
     const { data: authUser, error: authError } = await supabaseAuth.auth.getUser(token);
-    if (authError || !authUser?.user || authUser.user.id !== userId) {
+    if (authError || !authUser?.user) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    if (!userId || !email) {
-      return NextResponse.json(
-        { error: "Missing userId or email" },
-        { status: 400 },
-      );
-    }
-
     const supabaseAdmin = createSupabaseAdmin();
-    const { error } = await supabaseAdmin
+    const { data: existingProfile, error } = await supabaseAdmin
       .from("profiles")
-      .upsert({ id: userId, email, role });
+      .select(PROFILE_FIELDS)
+      .eq("id", authUser.user.id)
+      .maybeSingle();
 
     if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      throw error;
     }
 
-    return NextResponse.json({ ok: true });
+    let profile = existingProfile;
+    if (!profile) {
+      const insertResult = await supabaseAdmin
+        .from("profiles")
+        .insert({
+          id: authUser.user.id,
+          email: authUser.user.email ?? null,
+          role: "regular",
+        })
+        .select(PROFILE_FIELDS)
+        .single();
+      if (insertResult.error) {
+        throw insertResult.error;
+      }
+      profile = insertResult.data;
+    }
+
+    return NextResponse.json({ profile });
   } catch (error) {
-    console.error("Profile upsert failed", error);
+    console.error("Account profile fetch failed", error);
     return NextResponse.json(
-      { error: "Unexpected error upserting profile" },
+      { error: error instanceof Error ? error.message : "Unable to load profile." },
       { status: 500 },
     );
   }

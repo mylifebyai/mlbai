@@ -43,13 +43,8 @@ export function AppsLauncher() {
 
   const stackItems = useMemo(() => {
     const items = [...baseApps];
-    if (!user) {
-      const redirect = pathname && pathname !== '/' ? `?redirect=${encodeURIComponent(pathname)}` : '';
-      items.push({ name: 'Login', icon: '🔑', href: `/login${redirect}`, status: 'Access' });
-    }
-    if (user) {
-      items.push({ name: 'Logout', icon: '🚪', href: '#logout', status: 'Sign out' });
-    }
+    const redirect = pathname && pathname !== '/' ? `?redirect=${encodeURIComponent(pathname)}` : '';
+    items.push({ name: 'Account', icon: '👤', href: `/account${redirect}`, status: user ? 'Access' : 'Sign in' });
     return items;
   }, [user, pathname]);
 

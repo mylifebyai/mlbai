@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { createClient } from "@supabase/supabase-js";
-
-const PRIMARY_ADMIN_EMAIL = "mylife.byai@gmail.com";
+import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { PRIMARY_ADMIN_EMAIL } from "@/lib/constants";
 
 async function getUserFromToken(token: string) {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

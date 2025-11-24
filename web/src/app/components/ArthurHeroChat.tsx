@@ -67,7 +67,7 @@ export function ArthurHeroChat() {
         "I’m having trouble reaching my brain right now, but the headline is: this site is about systems over willpower, the documentary on YouTube, and tools like Promptly to help you run your own version.";
 
       setMessages((prev) => [...prev, createMessage('assistant', replyContent)]);
-    } catch (error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         createMessage(

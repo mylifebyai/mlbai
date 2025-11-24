@@ -4,18 +4,21 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useAuth } from "../../providers/AuthProvider";
 import { useProfileRole } from "../../hooks/useProfileRole";
+import { PRIMARY_ADMIN_EMAIL } from "@/lib/constants";
 
 type UserRow = {
   id: string;
-  email: string;
+  email: string | null;
   role: string | null;
+  patreon_status: string | null;
+  patreon_tier_id: string | null;
+  patreon_last_sync_at: string | null;
+  patreon_user_id: string | null;
   created_at: string | null;
   last_sign_in_at: string | null;
 };
 
 const ALLOWED_ROLES = ["admin", "tester", "regular"];
-const PRIMARY_ADMIN_EMAIL = "mylife.byai@gmail.com";
-
 export default function AdminUsersClient() {
   const { user, session } = useAuth();
   const { role, loading: roleLoading } = useProfileRole(user?.id);
@@ -161,8 +164,8 @@ export default function AdminUsersClient() {
             <div className="analytics-table-header">
               <h2>Users</h2>
               <p className="analytics-footnote">
-                Roles: admin / tester / regular. Use tester for access to feedback, admin for full
-                access, regular for general users.
+                Roles: admin / tester / regular. Patreon status and tier are shown for linked
+                accounts; admins remain admin even if Patreon lapses.
               </p>
             </div>
             <div className="analytics-table-wrapper">
@@ -171,6 +174,7 @@ export default function AdminUsersClient() {
                   <tr>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Patreon</th>
                     <th>Last sign in</th>
                     <th>Created</th>
                   </tr>
@@ -178,7 +182,7 @@ export default function AdminUsersClient() {
                 <tbody>
                   {sortedUsers.length === 0 ? (
                     <tr>
-                      <td colSpan={4} className="analytics-empty">
+                      <td colSpan={5} className="analytics-empty">
                         No users found.
                       </td>
                     </tr>
@@ -213,6 +217,18 @@ export default function AdminUsersClient() {
                               ))}
                             </select>
                           )}
+                        </td>
+                        <td>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem" }}>
+                            <span style={{ fontWeight: 600 }}>
+                              {u.patreon_status ?? "—"} {u.patreon_tier_id ? `· ${u.patreon_tier_id}` : ""}
+                            </span>
+                            <span className="analytics-footnote">
+                              {u.patreon_last_sync_at
+                                ? `Synced ${new Date(u.patreon_last_sync_at).toLocaleString()}`
+                                : "Not synced"}
+                            </span>
+                          </div>
                         </td>
                         <td>{u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString() : "—"}</td>
                         <td>{u.created_at ? new Date(u.created_at).toLocaleString() : "—"}</td>

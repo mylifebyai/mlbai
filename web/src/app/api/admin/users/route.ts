@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
 import { createClient } from "@supabase/supabase-js";
+import { createSupabaseAdmin } from "@/lib/supabaseAdmin";
+import { PRIMARY_ADMIN_EMAIL } from "@/lib/constants";
 
 const ALLOWED_ROLES = new Set(["admin", "tester", "regular"]);
 
@@ -56,23 +57,47 @@ export async function GET(request: Request) {
 
   const users = data?.users ?? [];
   const ids = users.map((u) => u.id);
-  let profiles: Record<string, string | null> = {};
+  let profiles: Record<
+    string,
+    {
+      role: string | null;
+      patreon_status: string | null;
+      patreon_tier_id: string | null;
+      patreon_last_sync_at: string | null;
+      patreon_user_id: string | null;
+    }
+  > = {};
 
   if (ids.length > 0) {
     const { data: profileRows, error: profileError } = await supabaseAdmin
       .from("profiles")
-      .select("id, role");
+      .select("id, role, patreon_status, patreon_tier_id, patreon_last_sync_at, patreon_user_id");
     if (profileError) {
       console.error("Failed to load profiles for admin list", profileError);
       return NextResponse.json({ error: profileError.message }, { status: 500 });
     }
-    profiles = Object.fromEntries((profileRows ?? []).map((row) => [row.id, row.role as string]));
+    profiles = Object.fromEntries(
+      (profileRows ?? []).map((row) => [
+        row.id,
+        {
+          role: row.role as string | null,
+          patreon_status: row.patreon_status as string | null,
+          patreon_tier_id: row.patreon_tier_id as string | null,
+          patreon_last_sync_at: row.patreon_last_sync_at as string | null,
+          patreon_user_id: row.patreon_user_id as string | null,
+        },
+      ]),
+    );
   }
 
   const payload = users.map((u) => ({
     id: u.id,
     email: u.email,
-    role: profiles[u.id] ?? null,
+    role: profiles[u.id]?.role ?? null,
+    patreon_status: profiles[u.id]?.patreon_status ?? null,
+    patreon_tier_id: profiles[u.id]?.patreon_tier_id ?? null,
+    patreon_last_sync_at: profiles[u.id]?.patreon_last_sync_at ?? null,
+    patreon_user_id: profiles[u.id]?.patreon_user_id ?? null,
     created_at: u.created_at,
     last_sign_in_at: u.last_sign_in_at,
   }));
@@ -96,7 +121,7 @@ export async function PATCH(request: Request) {
   }
 
   // Prevent demoting the primary admin (mylife.byai@gmail.com)
-  if (email && email.toLowerCase() === "mylife.byai@gmail.com" && role !== "admin") {
+  if (email && email.toLowerCase() === PRIMARY_ADMIN_EMAIL && role !== "admin") {
     return NextResponse.json({ error: "Cannot change primary admin role" }, { status: 400 });
   }
 

@@ -106,7 +106,7 @@ export default function PromptlyPage() {
 
       setMessages((prev) => [...prev, createMessage('assistant', assistantReply)]);
 
-    } catch (error) {
+    } catch {
       setMessages((prev) => [
         ...prev,
         createMessage(
