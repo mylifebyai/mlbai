@@ -173,20 +173,24 @@ export async function refreshAccessToken(refreshToken: string, config = getPatre
   );
 }
 
-function pickMembership(included: unknown, campaignId: string | null) {
+function pickMembership(
+  included: unknown,
+  campaignId: string | null,
+): Record<string, unknown> | null {
   if (!Array.isArray(included)) return null;
-  const memberships = included.filter(
-    (item) =>
-      item &&
-      typeof item === "object" &&
-      "type" in item &&
-      (item as Record<string, unknown>).type === "member",
-  ) as Array<Record<string, unknown>>;
+  const memberships = included.filter((item): item is Record<string, unknown> => {
+    if (!item || typeof item !== "object") return false;
+    const candidate = item as { type?: unknown };
+    return candidate.type === "member";
+  });
 
   if (campaignId) {
-    const targeted = memberships.find((member: any) => {
-      const campaign = member.relationships?.campaign?.data?.id;
-      return campaign && String(campaign) === campaignId;
+    const targeted = memberships.find((member) => {
+      const relationships = member.relationships as Record<string, unknown> | undefined;
+      const campaign = relationships?.campaign as Record<string, unknown> | undefined;
+      const data = campaign?.data as Record<string, unknown> | undefined;
+      const id = data?.id;
+      return typeof id === "string" && id === campaignId;
     });
     if (targeted) return targeted;
   }
@@ -228,10 +232,19 @@ export async function fetchPatreonMembership(accessToken: string, campaignId: st
   const identity = json?.data;
   const membership = pickMembership(json?.included, campaignId);
   const membershipAttrs =
-    membership && typeof membership === "object" ? (membership as any)?.attributes ?? {} : {};
+    membership && typeof membership === "object"
+      ? ((membership as Record<string, unknown>).attributes as Record<string, unknown> | undefined) ??
+        {}
+      : {};
   const membershipRels =
-    membership && typeof membership === "object" ? (membership as any)?.relationships ?? {} : {};
-  const membershipUserId = membershipRels?.user?.data?.id ?? null;
+    membership && typeof membership === "object"
+      ? ((membership as Record<string, unknown>).relationships as
+          | Record<string, unknown>
+          | undefined) ?? {}
+      : {};
+  const membershipUserRel = membershipRels?.user as Record<string, unknown> | undefined;
+  const membershipUserData = membershipUserRel?.data as Record<string, unknown> | undefined;
+  const membershipUserId = membershipUserData?.id ?? null;
 
   const patreonUserId =
     (identity?.id as string | undefined) ??

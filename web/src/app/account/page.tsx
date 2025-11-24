@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "../providers/AuthProvider";
@@ -16,7 +16,7 @@ type AccountProfile = {
   patreon_last_sync_at: string | null;
 };
 
-export default function AccountPage() {
+function AccountContent() {
   const { user, session, loading: authLoading, signInWithPassword, signOut } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -359,4 +359,18 @@ function sanitizeRedirect(raw: string | null): string {
     return raw;
   }
   return "/account";
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="analytics-page">
+          <section className="wrapper app-shell analytics-shell">Loading…</section>
+        </main>
+      }
+    >
+      <AccountContent />
+    </Suspense>
+  );
 }
