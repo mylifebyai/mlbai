@@ -227,10 +227,14 @@ export async function fetchPatreonMembership(accessToken: string, campaignId: st
 
   const identity = json?.data;
   const membership = pickMembership(json?.included, campaignId);
+  const membershipUserId =
+    membership && typeof membership === "object"
+      ? (membership as any)?.relationships?.user?.data?.id ?? null
+      : null;
 
   const patreonUserId =
     (identity?.id as string | undefined) ??
-    (membership?.relationships?.user?.data?.id as string | undefined) ??
+    (typeof membershipUserId === "string" ? membershipUserId : null) ??
     null;
   const email = identity?.attributes?.email ?? null;
   const status =
