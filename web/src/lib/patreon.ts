@@ -227,10 +227,11 @@ export async function fetchPatreonMembership(accessToken: string, campaignId: st
 
   const identity = json?.data;
   const membership = pickMembership(json?.included, campaignId);
-  const membershipUserId =
-    membership && typeof membership === "object"
-      ? (membership as any)?.relationships?.user?.data?.id ?? null
-      : null;
+  const membershipAttrs =
+    membership && typeof membership === "object" ? (membership as any)?.attributes ?? {} : {};
+  const membershipRels =
+    membership && typeof membership === "object" ? (membership as any)?.relationships ?? {} : {};
+  const membershipUserId = membershipRels?.user?.data?.id ?? null;
 
   const patreonUserId =
     (identity?.id as string | undefined) ??
@@ -238,16 +239,16 @@ export async function fetchPatreonMembership(accessToken: string, campaignId: st
     null;
   const email = identity?.attributes?.email ?? null;
   const status =
-    membership?.attributes?.patron_status ??
-    membership?.attributes?.last_charge_status ??
-    membership?.attributes?.pledge_status ??
+    membershipAttrs?.patron_status ??
+    membershipAttrs?.last_charge_status ??
+    membershipAttrs?.pledge_status ??
     null;
   const tierId =
-    membership?.relationships?.currently_entitled_tiers?.data?.[0]?.id ??
-    membership?.attributes?.currently_entitled_tier_id ??
+    membershipRels?.currently_entitled_tiers?.data?.[0]?.id ??
+    membershipAttrs?.currently_entitled_tier_id ??
     null;
-  const entitledCents = membership?.attributes?.currently_entitled_amount_cents ?? null;
-  const resolvedCampaignId = membership?.relationships?.campaign?.data?.id ?? null;
+  const entitledCents = membershipAttrs?.currently_entitled_amount_cents ?? null;
+  const resolvedCampaignId = membershipRels?.campaign?.data?.id ?? null;
 
   return {
     patreonUserId,
