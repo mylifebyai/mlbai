@@ -226,7 +226,24 @@ function AccountContent() {
           </p>
         </header>
 
-        {error ? <div className="analytics-error">{error}</div> : null}
+        {error ? (
+          <div className="analytics-error">
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <span>{error}</span>
+              {error.toLowerCase().includes("patreon") ? (
+                <a
+                  className="btn-secondary"
+                  href="https://www.patreon.com"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ alignSelf: "flex-start" }}
+                >
+                  Open Patreon
+                </a>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
         {patreonMessage ? <div className="form-success">{patreonMessage}</div> : null}
 
         {!user ? (
@@ -309,6 +326,9 @@ function AccountContent() {
 
               <article className="analytics-card" style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
                 <p className="analytics-card-label">Patreon</p>
+                <p className="analytics-footnote" style={{ margin: 0 }}>
+                  Ensure you&apos;re signed into your Patreon account before linking.
+                </p>
                 <div style={{ display: "flex", flexDirection: "row", gap: "0.75rem", alignItems: "center", flexWrap: "wrap" }}>
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.1rem" }}>
                     <p className="analytics-card-value" style={{ margin: 0, fontSize: "1.25rem", color: "var(--text)" }}>
