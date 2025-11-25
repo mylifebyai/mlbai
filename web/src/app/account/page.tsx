@@ -166,9 +166,12 @@ function AccountContent() {
     }
 
     // If sign-in failed, attempt to create the account automatically.
+    const confirmRedirect =
+      typeof window !== "undefined" ? `${window.location.origin}/auth/confirm` : undefined;
     const { data, error: signUpError } = await supabase.auth.signUp({
       email,
       password,
+      options: confirmRedirect ? { emailRedirectTo: confirmRedirect } : undefined,
     });
 
     if (signUpError) {
