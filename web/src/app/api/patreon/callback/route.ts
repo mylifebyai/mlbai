@@ -50,12 +50,13 @@ export async function GET(request: Request) {
         campaignId: membership.campaignId,
         expectedCampaignId: config.campaignId,
       });
+      const membershipDetails = `status=${membership.status ?? "none"}, tier=${membership.tierId ?? "none"}, campaign=${membership.campaignId ?? "none"}, expected=${config.campaignId ?? "none"}`;
       redirectUrl.searchParams.set("patreon", "error");
       redirectUrl.searchParams.set(
         "reason",
         mismatchedCampaign
-          ? "Patreon membership is for a different campaign."
-          : "No active Patreon membership found for this campaign.",
+          ? `Patreon membership is for a different campaign (${membershipDetails}).`
+          : `No active Patreon membership found for this campaign (${membershipDetails}).`,
       );
       return NextResponse.redirect(redirectUrl);
     }
