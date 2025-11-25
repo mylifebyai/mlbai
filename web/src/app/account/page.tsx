@@ -25,6 +25,7 @@ function AccountContent() {
   const [error, setError] = useState<string | null>(null);
   const [patreonMessage, setPatreonMessage] = useState<string | null>(null);
   const [linking, setLinking] = useState(false);
+  const [unlinking, setUnlinking] = useState(false);
 
   const patreonNotice = searchParams.get("patreon");
   const patreonReason = searchParams.get("reason");
@@ -130,6 +131,12 @@ function AccountContent() {
   const lastSyncLabel = profile?.patreon_last_sync_at
     ? new Date(profile.patreon_last_sync_at).toLocaleString()
     : null;
+  const isPatreonLinked = !!profile?.patreon_status && profile.patreon_status !== "no_membership";
+  const patreonButtonLabel = linking
+    ? "Opening Patreon…"
+    : isPatreonLinked
+      ? "Refresh Patreon"
+      : "Link Patreon";
 
   const ensureProfile = async (accessToken: string | null) => {
     if (!accessToken) return;
@@ -207,6 +214,36 @@ function AccountContent() {
 
     setStatusMessage("Account created. Check your email to confirm, then sign in.");
     setSubmitting(false);
+  };
+
+  const handlePatreonUnlink = async () => {
+    if (!session?.access_token) {
+      setError("You need to sign in before unlinking Patreon.");
+      return;
+    }
+    setUnlinking(true);
+    setPatreonMessage(null);
+    setError(null);
+    try {
+      const res = await fetch("/api/patreon/unlink", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data?.error ?? "Unable to disconnect Patreon.");
+      }
+      await fetchProfile();
+      setPatreonMessage("Patreon disconnected.");
+    } catch (err) {
+      console.error(err);
+      setError(err instanceof Error ? err.message : "Unable to disconnect Patreon.");
+    } finally {
+      setUnlinking(false);
+    }
   };
 
   return (
@@ -355,8 +392,18 @@ function AccountContent() {
                     onClick={handlePatreonLink}
                     disabled={linking || authLoading}
                   >
-                    {linking ? "Opening Patreon…" : "Link Patreon"}
+                    {patreonButtonLabel}
                   </button>
+                  {isPatreonLinked ? (
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={handlePatreonUnlink}
+                      disabled={unlinking || authLoading}
+                    >
+                      {unlinking ? "Disconnecting…" : "Disconnect Patreon"}
+                    </button>
+                  ) : null}
                 </div>
               </article>
             </div>
