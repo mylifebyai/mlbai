@@ -85,7 +85,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     const { error: signOutError } = await supabase.auth.signOut();
-    if (signOutError) {
+    const isInvalidToken =
+      typeof signOutError?.message === "string" &&
+      signOutError.message.toLowerCase().includes("invalid");
+    if (signOutError && !isInvalidToken) {
       setError(signOutError.message);
       return { error: signOutError.message };
     }
