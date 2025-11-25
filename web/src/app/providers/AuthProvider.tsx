@@ -89,9 +89,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       typeof signOutError?.message === "string" &&
       signOutError.message.toLowerCase().includes("invalid");
     if (signOutError && !isInvalidToken) {
+      // Best effort local clear even if server sign-out failed.
+      await supabase.auth.signOut({ scope: "local" });
       setError(signOutError.message);
-      return { error: signOutError.message };
     }
+    // Always clear local session so the UI resets even if the server call complained.
     setSession(null);
     setUser(null);
     setError(null);
