@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ConfirmPage() {
+function ConfirmContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [redirecting, setRedirecting] = useState(false);
@@ -57,5 +57,19 @@ export default function ConfirmPage() {
         ) : null}
       </section>
     </main>
+  );
+}
+
+export default function ConfirmPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="auth-page">
+          <section className="wrapper app-shell auth-shell">Loading…</section>
+        </main>
+      }
+    >
+      <ConfirmContent />
+    </Suspense>
   );
 }
