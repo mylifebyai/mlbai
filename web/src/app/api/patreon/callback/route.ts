@@ -36,6 +36,30 @@ export async function GET(request: Request) {
     const tokens = await exchangeCodeForToken(code, config);
     const membership = await fetchPatreonMembership(tokens.accessToken, config.campaignId);
 
+    const mismatchedCampaign =
+      !!config.campaignId &&
+      !!membership.campaignId &&
+      membership.campaignId !== config.campaignId;
+    const missingTier = !membership.tierId;
+
+    if (missingTier || mismatchedCampaign) {
+      console.warn("Patreon membership incomplete", {
+        patreonUserId: membership.patreonUserId,
+        status: membership.status,
+        tierId: membership.tierId,
+        campaignId: membership.campaignId,
+        expectedCampaignId: config.campaignId,
+      });
+      redirectUrl.searchParams.set("patreon", "error");
+      redirectUrl.searchParams.set(
+        "reason",
+        mismatchedCampaign
+          ? "Patreon membership is for a different campaign."
+          : "No active Patreon membership found for this campaign.",
+      );
+      return NextResponse.redirect(redirectUrl);
+    }
+
     const supabaseAdmin = createSupabaseAdmin();
     const { data: existingProfile, error: profileError } = await supabaseAdmin
       .from("profiles")
