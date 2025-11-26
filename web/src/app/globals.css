@@ -833,7 +833,7 @@ li + li {
 
 .roadmap-item {
   border-left: 3px solid var(--accent);
-  padding: 0.4rem 0 3.2rem 1.2rem;
+  padding: 0.4rem 1.1rem 3.2rem 1.2rem;
   background: #fff;
   border-radius: 1rem;
   box-shadow: 0 15px 45px rgba(15, 23, 42, 0.06);
@@ -1063,6 +1063,166 @@ footer {
   white-space: pre-wrap;
   word-break: break-word;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+@media (max-width: 768px) {
+  :root {
+    --section-padding: clamp(2.25rem, 8vw, 3.25rem);
+    --section-gap: clamp(1.4rem, 5vw, 2.4rem);
+  }
+
+  body {
+    font-size: 1rem;
+  }
+
+  .wrapper {
+    padding: 0 clamp(0.6rem, 3vw, 1rem);
+  }
+
+  .site-header .wrapper,
+  main .wrapper {
+    padding-inline: clamp(0.6rem, 3vw, 1rem);
+  }
+
+  nav {
+    padding: 0 clamp(0.6rem, 3vw, 1rem) 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.6rem;
+  }
+
+  .brand-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  h1 {
+    font-size: clamp(1.9rem, 6vw, 2.5rem);
+    line-height: 1.1;
+  }
+
+  .hero {
+    padding: 0.75rem 0 2.5rem;
+  }
+
+  .hero-grid {
+    gap: 2rem;
+  }
+
+  .hero-grid > div:first-child {
+    max-width: 42ch;
+    margin-inline: auto;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+  }
+
+  .hero-support {
+    font-size: 1rem;
+  }
+
+  .hero-feature {
+    margin: 1rem 0;
+  }
+
+  .hero-feature-media {
+    border-radius: 1rem;
+  }
+
+  .hero-feature-note {
+    font-size: 0.95rem;
+  }
+
+  .hero-visual {
+    max-width: 100%;
+  }
+
+  .chat-shell {
+    padding: 1.1rem;
+  }
+
+  .chat-message {
+    font-size: 0.97rem;
+    word-break: break-word;
+  }
+
+  .chat-input {
+    gap: 0.55rem;
+    flex-wrap: wrap;
+    padding: 0.55rem 0.7rem 0.45rem;
+  }
+
+  .chat-input input {
+    min-width: 0;
+    font-size: 0.95rem;
+  }
+
+  .chat-input-button {
+    width: 100%;
+    height: 42px;
+  }
+
+  .section-content.section-split {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-row {
+    gap: 0.75rem;
+  }
+
+  .cards,
+  .tools-grid,
+  .testimonial-grid,
+  .stay-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .video-embed-card {
+    padding: 1.1rem;
+  }
+
+  .image-photo-inline {
+    height: clamp(220px, 62vw, 320px);
+  }
+
+  .roadmap-item {
+    padding: 0.4rem 1rem 2rem 1.1rem;
+  }
+
+  .roadmap-link {
+    position: static;
+    margin-top: 0.85rem;
+  }
+
+  .prompt-input-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .prompt-send {
+    width: 100%;
+  }
+
+  footer {
+    padding: 2.25rem 1.25rem;
+  }
+
+  .apps-launcher {
+    top: auto;
+    right: clamp(0.4rem, 3vw, 0.9rem);
+    bottom: clamp(1.4rem, 4vw, 2.4rem);
+  }
+
+  .apps-launcher-button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .apps-launcher-stack {
+    top: auto;
+    bottom: calc(100% + 0.5rem);
+  }
 }
 
 /* Floating feedback button */
@@ -1390,6 +1550,24 @@ footer {
   letter-spacing: 0.05em;
   color: rgba(0, 0, 0, 0.45);
   text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .apps-launcher {
+    top: clamp(1rem, 4vw, 1.6rem);
+    bottom: auto;
+    right: clamp(1rem, 6vw, 1.8rem);
+  }
+
+  .apps-launcher-button {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .apps-launcher-stack {
+    top: calc(100% + 0.5rem);
+    bottom: auto;
+  }
 }
 
 /* Docs viewer */
