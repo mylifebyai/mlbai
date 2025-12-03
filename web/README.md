@@ -27,6 +27,7 @@ Work on the manifesto builder lives on the dedicated branch `feature/manifesto-b
   - Keep Production and Preview env vars as separate entries in Vercel. Production uses the live values; Preview can point to staging values if you have them.
   - Use the branch alias as the stable redirect for Patreon in Preview. Example for this branch: `https://mlbai-git-feature-manifesto-builder-mlbais-projects.vercel.app/api/patreon/callback`.
   - If a Preview env var changes, redeploy the preview (UI redeploy or empty commit) so the app picks it up.
+- Full product spec for the Manifesto Builder lives at `../docs/manifesto-builder-spec.md`.
 
 ---
 
