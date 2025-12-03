@@ -75,7 +75,7 @@ The Manifesto Builder is the first module in the MLBAI system. It guides the use
 
 ## 4. Manifesto Requirements
 
-- Length: 2,000–3,000 words; narrative, detailed, in user’s voice.
+- Length: 1,000–2,000 words; narrative, detailed, in user’s voice.
 - Sections: Title; Summary; Physical Health; Mental Health; Diet & Food Relationship; Sleep; Fitness; Productivity; Work/Career/Business; Finances; Social Life; Relationships; Home Environment; Emotional Patterns; Core Obstacles; Identity Themes; Long-Term Vision; Mandatory Habits; Commitment Declaration.
 
 ## 5. Goals & Trackers System

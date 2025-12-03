@@ -1,5 +1,5 @@
 [x] Step 1: Scaffold Manifesto Builder route/page with basic layout and feature gating.
-[ ] Step 2: Add chat-style interview UI + local state machine (no backend yet).
+[x] Step 2: Add chat-style interview UI + local state machine (no backend yet).
 [ ] Step 3: Wire backend persistence (endpoint + storage) for manifesto drafts and convo logs (user-owned).
 [ ] Step 4: Add manifesto draft generation step (2–3k words) and render in UI.
 [ ] Step 5: Build refinement loop (user edits/requests rewrites, regenerate draft).

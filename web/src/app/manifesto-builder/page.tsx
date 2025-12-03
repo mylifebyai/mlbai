@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { BuilderClient } from "./BuilderClient";
 
 const isEnabled = process.env.NEXT_PUBLIC_MANIFESTO_BUILDER_ENABLED === "true";
 
@@ -81,6 +82,18 @@ export default function ManifestoBuilderPage() {
           </Link>
           .
         </p>
+      </section>
+
+      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+        <h3 className="text-lg font-semibold">Interactive scaffold (Step 2)</h3>
+        <p className="mt-2 text-gray-700">
+          Chat-style interview UI with a local-only state machine. Ratings drive which areas get
+          deep-dive questions. No backend calls yet—this is just the UX skeleton for testing flow and
+          pacing.
+        </p>
+        <div className="mt-4">
+          <BuilderClient />
+        </div>
       </section>
     </main>
   );
