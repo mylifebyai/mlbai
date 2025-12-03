@@ -15,6 +15,7 @@ Work on the manifesto builder lives on the dedicated branch `feature/manifesto-b
    - `OPENAI_API_KEY`
    - `PATREON_CLIENT_ID`, `PATREON_CLIENT_SECRET`, `PATREON_REDIRECT_URI`, `PATREON_STATE_SECRET`
    - Optional: `ANALYTICS_IP_SALT`, `PATREON_SYNC_SECRET`, `PATREON_CAMPAIGN_ID`, `PATREON_TESTER_TIER_IDS`
+   - Optional feature flag: `NEXT_PUBLIC_MANIFESTO_BUILDER_ENABLED=true` to view the Manifesto Builder route (set true locally; keep false in production).
 4. `npm run dev` → http://localhost:3000
 5. Run `npm run lint` before pushing.
 
@@ -27,6 +28,7 @@ Work on the manifesto builder lives on the dedicated branch `feature/manifesto-b
   - Keep Production and Preview env vars as separate entries in Vercel. Production uses the live values; Preview can point to staging values if you have them.
   - Use the branch alias as the stable redirect for Patreon in Preview. Example for this branch: `https://mlbai-git-feature-manifesto-builder-mlbais-projects.vercel.app/api/patreon/callback`.
   - If a Preview env var changes, redeploy the preview (UI redeploy or empty commit) so the app picks it up.
+  - Set `NEXT_PUBLIC_MANIFESTO_BUILDER_ENABLED=true` in Preview only; keep it `false` in Production.
 - Full product spec for the Manifesto Builder lives at `../docs/manifesto-builder-spec.md`.
 
 ---
