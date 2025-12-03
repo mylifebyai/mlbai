@@ -23,6 +23,10 @@ Work on the manifesto builder lives on the dedicated branch `feature/manifesto-b
 - Push the branch: `git push -u origin feature/manifesto-builder`. Vercel will build a Preview deployment because `main` is the only production branch.
 - In the Vercel project settings, add the same env vars above to the Preview scope (use staging/test credentials). Set `PATREON_REDIRECT_URI` to the preview domain, e.g. `https://<preview>.vercel.app/api/patreon/callback`.
 - Use the preview URL for testing and sharing. Do not promote the deployment to production or merge to `main` until you are ready for the live site.
+- Recommended preview setup:
+  - Keep Production and Preview env vars as separate entries in Vercel. Production uses the live values; Preview can point to staging values if you have them.
+  - Use the branch alias as the stable redirect for Patreon in Preview. Example for this branch: `https://mlbai-git-feature-manifesto-builder-mlbais-projects.vercel.app/api/patreon/callback`.
+  - If a Preview env var changes, redeploy the preview (UI redeploy or empty commit) so the app picks it up.
 
 ---
 
