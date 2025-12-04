@@ -10,7 +10,7 @@ type Message = {
 
 type Area = { id: string; label: string; helper: string };
 
-type Rating = { importance: number; pain: number };
+type Rating = { importance: number };
 
 type DeepDiveItem = { areaId: string; questions: string[] };
 
@@ -24,7 +24,6 @@ const lifeAreas: Area[] = [
   { id: "work", label: "Work / Career / Business", helper: "direction, progress, friction" },
   { id: "finances", label: "Finances", helper: "spending, debt, savings, guilt" },
   { id: "relationships", label: "Relationships / Family", helper: "connection, conflict, support" },
-  { id: "social", label: "Social Life", helper: "friendships, loneliness, belonging" },
   { id: "home", label: "Home Environment", helper: "organization, clutter, safety" },
   { id: "emotional", label: "Emotional Life", helper: "patterns, shame cycles, triggers" },
   { id: "identity", label: "Identity / Purpose", helper: "who you are, why this matters" },
@@ -54,8 +53,7 @@ export function BuilderClient() {
   const [mode, setMode] = useState<"idle" | "rating" | "deepDive" | "complete">("idle");
   const [ratings, setRatings] = useState<Record<string, Rating>>({});
   const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
-  const [tempImportance, setTempImportance] = useState<number | null>(null);
-  const [tempPain, setTempPain] = useState<number | null>(null);
+  const [tempImportance, setTempImportance] = useState<number | null>(5);
   const [deepQueue, setDeepQueue] = useState<DeepDiveItem[]>([]);
   const [deepIndex, setDeepIndex] = useState(0);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -66,6 +64,9 @@ export function BuilderClient() {
   const currentDeep = deepQueue[deepIndex];
   const currentDeepQuestion =
     currentDeep?.questions[questionIndex] ?? deepDiveQuestions.default[questionIndex] ?? null;
+  const ratedCount = useMemo(() => Object.keys(ratings).length, [ratings]);
+  const totalAreas = lifeAreas.length;
+  const ratingProgress = Math.round((ratedCount / totalAreas) * 100);
 
   useEffect(() => {
     if (listRef.current) {
@@ -99,8 +100,7 @@ export function BuilderClient() {
     setMode("idle");
     setRatings({});
     setCurrentAreaIndex(0);
-    setTempImportance(null);
-    setTempPain(null);
+    setTempImportance(5);
     setDeepQueue([]);
     setDeepIndex(0);
     setQuestionIndex(0);
@@ -116,27 +116,27 @@ export function BuilderClient() {
   };
 
   const handleSaveRating = () => {
-    if (tempImportance === null || tempPain === null || !currentArea) return;
+    if (tempImportance === null || !currentArea) return;
     const updatedRatings = {
       ...ratings,
-      [currentArea.id]: { importance: tempImportance, pain: tempPain },
+      [currentArea.id]: { importance: tempImportance },
     };
     setRatings(updatedRatings);
-    addUserMessage(
-      `${currentArea.label} — Importance: ${tempImportance}/10, Pain: ${tempPain}/10.`,
-    );
+    addUserMessage(`${currentArea.label} — Importance: ${tempImportance}/10.`);
     setTempImportance(null);
-    setTempPain(null);
 
     const nextIndex = currentAreaIndex + 1;
     if (nextIndex < lifeAreas.length) {
+      const nextArea = lifeAreas[nextIndex];
+      const nextDefault = updatedRatings[nextArea.id]?.importance ?? 5;
+      setTempImportance(nextDefault);
       setCurrentAreaIndex(nextIndex);
-      addAssistantMessage(`Got it. Next: ${lifeAreas[nextIndex].label}.`);
+      addAssistantMessage(`Got it. Next: ${nextArea.label}.`);
     } else {
       const queue: DeepDiveItem[] = lifeAreas
         .map((area) => {
           const rating = updatedRatings[area.id];
-          const isHigh = rating && rating.importance >= 7 && rating.pain >= 7;
+          const isHigh = rating && rating.importance >= 7;
           if (!isHigh) return null;
           return {
             areaId: area.id,
@@ -146,6 +146,7 @@ export function BuilderClient() {
         .filter(Boolean) as DeepDiveItem[];
 
       if (queue.length > 0) {
+        setTempImportance(5);
         setDeepQueue(queue);
         setDeepIndex(0);
         setQuestionIndex(0);
@@ -156,6 +157,7 @@ export function BuilderClient() {
         addAssistantMessage(queue[0].questions[0]);
       } else {
         setMode("complete");
+        setTempImportance(5);
         addAssistantMessage(
           "No high-pain/high-importance areas flagged. We can still draft a manifesto later, but you may want to add more detail.",
         );
@@ -208,7 +210,8 @@ export function BuilderClient() {
 
   const statusLabel = useMemo(() => {
     if (!started) return "Not started";
-    if (mode === "rating") return `Rating: ${currentArea?.label ?? ""}`;
+    if (mode === "rating")
+      return `Rating: ${currentArea?.label ?? ""} (${currentAreaIndex + 1}/${lifeAreas.length})`;
     if (mode === "deepDive") {
       const areaLabel =
         deepQueue.length > 0
@@ -217,59 +220,69 @@ export function BuilderClient() {
       return `Deep dive: ${areaLabel ?? ""}`;
     }
     return "Ready for drafting (next steps)";
-  }, [started, mode, currentArea?.label, deepQueue, deepIndex]);
+  }, [started, mode, currentArea?.label, deepQueue, deepIndex, currentAreaIndex]);
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
-      <div className="flex h-[70vh] flex-col rounded-lg border border-gray-200 bg-white shadow-sm">
-        <header className="flex items-center justify-between border-b border-gray-200 px-4 py-3">
+    <div className="mb-shell">
+      <div className="mb-header">
+        <div className="mb-header-main">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-600">Preview</p>
-            <p className="text-sm text-gray-700">{statusLabel}</p>
+            <p className="mb-eyebrow">Step 2 — Interview flow</p>
+            <p className="mb-status">{statusLabel}</p>
+            <div className="mb-progress-wrap">
+              <div className="mb-progress-bar">
+                <span style={{ width: `${Math.min(100, ratingProgress)}%` }} />
+              </div>
+              <span>
+                {ratedCount}/{totalAreas} rated
+              </span>
+            </div>
           </div>
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={reset}
-              className="rounded border border-gray-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-50"
-            >
-              Reset
-            </button>
-            {!started ? (
-              <button
-                type="button"
-                onClick={startFlow}
-                className="rounded bg-amber-600 px-3 py-1 text-sm font-semibold text-white hover:bg-amber-700"
-              >
-                Start
+          <div className="mb-actions">
+            <span className="mb-badge">Local-only</span>
+            <span className="mb-badge">Flow testing</span>
+            {started ? (
+              <button type="button" onClick={reset} className="mb-btn">
+                Reset
               </button>
-            ) : null}
+            ) : (
+              <button type="button" onClick={startFlow} className="mb-btn mb-btn-primary">
+                Start interview
+              </button>
+            )}
           </div>
-        </header>
+        </div>
+      </div>
 
-        <div ref={listRef} className="flex-1 space-y-3 overflow-y-auto px-4 py-4">
-          {messages.map((msg) => (
-            <div key={msg.id} className="flex">
+      <div className="mb-grid">
+        <div className="mb-card mb-transcript-wrap">
+          <div className="mb-transcript-header">
+            <div>
+              <p className="mb-status" style={{ fontSize: "16px", marginBottom: 2 }}>
+                Transcript
+              </p>
+              <small>Answer deep-dive questions here</small>
+            </div>
+            <span className="mb-tag">{mode === "deepDive" ? "Deep dive" : "Scanning"}</span>
+          </div>
+          <div ref={listRef} className="mb-transcript">
+            {messages.map((msg) => (
               <div
-                className={`max-w-3xl rounded-lg px-3 py-2 text-sm shadow ${
-                  msg.role === "assistant"
-                    ? "bg-blue-50 text-blue-900"
-                    : "ml-auto bg-amber-50 text-amber-900"
-                }`}
+                key={msg.id}
+                className={`mb-bubble ${msg.role === "assistant" ? "assistant" : "user"}`}
               >
                 {msg.content}
               </div>
-            </div>
-          ))}
-          {messages.length === 0 && (
-            <div className="text-sm text-gray-600">
-              Press Start to kick off the interview scaffold. This is local-only for now.
-            </div>
-          )}
-        </div>
+            ))}
+            {messages.length === 0 && (
+              <div className="mb-bubble assistant">
+                Press “Start interview” to begin. Rate areas in the sidebar; deep-dive answers show up
+                here.
+              </div>
+            )}
+          </div>
 
-        <div className="border-t border-gray-200 px-4 py-3">
-          <div className="flex items-center gap-2">
+          <div className="mb-input-row">
             <input
               type="text"
               value={userInput}
@@ -286,105 +299,95 @@ export function BuilderClient() {
                   : "Waiting for ratings. Use the panel on the right."
               }
               disabled={!started || mode !== "deepDive"}
-              className="w-full rounded border border-gray-200 px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-500"
             />
             <button
               type="button"
               onClick={handleSend}
               disabled={!started || mode !== "deepDive" || !userInput.trim()}
-              className="rounded bg-blue-600 px-3 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:bg-blue-300"
+              className="mb-btn mb-btn-primary"
             >
               Send
             </button>
           </div>
-          <p className="mt-1 text-xs text-gray-500">
-            Ratings happen in the panel on the right. The text box is active during deep-dive
-            questions.
+          <p className="mb-note">
+            Tip: rate each area in the sidebar, then answer deep-dive questions here.
           </p>
         </div>
-      </div>
 
-      <aside className="space-y-4">
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900">Progress</h3>
-          <p className="mt-1 text-sm text-gray-700">{statusLabel}</p>
-          <div className="mt-2 text-xs text-gray-600">
+        <aside className="mb-side-cards">
+          <div className="mb-card">
+            <h3 className="mb-card-title">How to test</h3>
+            <ol className="mb-list">
+              <li>Start the interview.</li>
+              <li>Rate each area; mark a few as 7+ importance to trigger deep dives.</li>
+              <li>Answer the deep-dive questions.</li>
+              <li>Confirm it reaches “ready to draft.”</li>
+            </ol>
+          </div>
+
+          <div className="mb-card mb-progress-card">
+            <div className="mb-progress-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 className="mb-card-title" style={{ marginBottom: 0 }}>
+                Progress
+              </h3>
+              <span className="mb-tag">{ratingProgress}% rated</span>
+            </div>
+            <p style={{ margin: "4px 0 8px", color: "var(--muted)" }}>{statusLabel}</p>
+            <div className="mb-note" style={{ marginTop: 0 }}>
+              {mode === "rating" && currentArea
+                ? `Rating ${currentArea.label} — ${currentArea.helper}`
+                : mode === "deepDive" && currentDeep
+                  ? `Deep dive on ${lifeAreas.find((a) => a.id === currentDeep.areaId)?.label ?? "this area"}`
+                  : "Waiting to start or ready for next steps."}
+            </div>
+            <div className="meter">
+              <span style={{ width: `${Math.min(100, ratingProgress)}%` }} />
+            </div>
+          </div>
+
+          <div className="mb-card">
+            <h3 className="mb-card-title">Rate this area</h3>
             {mode === "rating" && currentArea ? (
-              <p>
-                Rating {currentArea.label}
-                <span className="block text-gray-500">{currentArea.helper}</span>
-              </p>
-            ) : mode === "deepDive" && currentDeep ? (
-              <p>
-                Deep dive on{" "}
-                {lifeAreas.find((a) => a.id === currentDeep.areaId)?.label ?? "this area"}.
-              </p>
+              <div className="mb-rating">
+                <header>
+                  <div>
+                    <div className="area-info">{currentArea.label}</div>
+                    <div className="area-helper">{currentArea.helper}</div>
+                  </div>
+                  <span className="mb-tag">
+                    {currentAreaIndex + 1} / {totalAreas}
+                  </span>
+                </header>
+                <div className="mb-slider">
+                  <label className="area-helper">Importance (1-10)</label>
+                  <input
+                    type="range"
+                    min={1}
+                    max={10}
+                    value={tempImportance ?? 5}
+                    onChange={(e) => setTempImportance(Number(e.target.value))}
+                  />
+                  <div className="value">Current: {tempImportance ?? "Pick a value"}</div>
+                </div>
+                <button type="button" onClick={handleSaveRating} className="mb-btn mb-btn-primary">
+                  Save rating &amp; next area
+                </button>
+              </div>
             ) : (
-              <p>Waiting to start or ready for next steps.</p>
+              <p className="mb-note">Ratings are available during the scan. Start the flow to begin.</p>
             )}
           </div>
-        </div>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900">Ratings</h3>
-          {mode === "rating" && currentArea ? (
-            <div className="mt-3 space-y-3">
-              <div className="flex items-center justify-between text-sm font-medium text-gray-800">
-                <span>{currentArea.label}</span>
-                <span className="text-xs text-gray-500">{currentArea.helper}</span>
-              </div>
-              <label className="block text-sm text-gray-700">
-                Importance (1-10)
-                <input
-                  type="range"
-                  min={1}
-                  max={10}
-                  value={tempImportance ?? 5}
-                  onChange={(e) => setTempImportance(Number(e.target.value))}
-                  className="mt-1 w-full"
-                />
-                <span className="text-xs text-gray-600">
-                  {tempImportance ?? "Pick a value"}
-                </span>
-              </label>
-              <label className="block text-sm text-gray-700">
-                Pain (1-10)
-                <input
-                  type="range"
-                  min={1}
-                  max={10}
-                  value={tempPain ?? 5}
-                  onChange={(e) => setTempPain(Number(e.target.value))}
-                  className="mt-1 w-full"
-                />
-                <span className="text-xs text-gray-600">{tempPain ?? "Pick a value"}</span>
-              </label>
-              <button
-                type="button"
-                onClick={handleSaveRating}
-                className="w-full rounded bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700"
-              >
-                Save rating &amp; continue
-              </button>
-            </div>
-          ) : (
-            <p className="mt-2 text-sm text-gray-600">
-              Ratings are available during the scan. Start the flow to begin.
-            </p>
-          )}
-        </div>
-
-        <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
-          <h3 className="text-sm font-semibold text-gray-900">Deep-dive prompt</h3>
-          {mode === "deepDive" && currentDeepQuestion ? (
-            <p className="mt-2 text-sm text-gray-700">{currentDeepQuestion}</p>
-          ) : (
-            <p className="mt-2 text-sm text-gray-600">
-              After ratings, high pain + importance areas will trigger deep questions.
-            </p>
-          )}
-        </div>
-      </aside>
+          <div className="mb-card">
+            <h3 className="mb-card-title">Deep-dive prompt</h3>
+            {mode === "deepDive" && currentDeepQuestion ? (
+              <p style={{ margin: 0, color: "var(--text)" }}>{currentDeepQuestion}</p>
+            ) : (
+              <p className="mb-note">After ratings, high-importance areas will trigger deep questions.</p>
+            )}
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

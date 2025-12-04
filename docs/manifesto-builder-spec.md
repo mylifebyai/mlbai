@@ -19,17 +19,17 @@ The Manifesto Builder is the first module in the MLBAI system. It guides the use
 - Explain privacy (strictly private, admin cannot access).
 
 ### Step 2 — Life Areas Scan
-- Structured scan of: Physical Health, Mental Health, Diet & Eating Patterns, Sleep, Exercise/Fitness, Productivity, Work/Career/Business, Finances, Relationships/Family, Social Life, Home Environment, Emotional Life, Identity/Purpose, Creativity, Addictions/Destructive Behavior, and anything else the user mentions.
-- For each area, ask Importance (1–10) and Pain (1–10).
+- Structured scan of: Physical Health, Mental Health, Diet & Eating Patterns, Sleep, Exercise/Fitness, Productivity, Work/Career/Business, Finances, Relationships/Family, Home Environment, Emotional Life, Identity/Purpose, Creativity, Addictions/Destructive Behavior, and anything else the user mentions.
+- For each area, ask Importance (1–10).
 
 ### Step 3 — Deep Dives
-- For high-importance AND high-pain domains, gather: history, triggers, attempts, failures, emotional patterns, internal dialogue, constraints, daily friction, ideal state, self-sabotage loops.
+- For high-importance domains, gather: history, triggers, attempts, failures, emotional patterns, internal dialogue, constraints, daily friction, ideal state, self-sabotage loops.
 
 ### Step 4 — Tangent Exploration
 - When emotionally/practically significant items surface (trauma, shame, patterns, loneliness, money guilt, perfectionism, etc.), pause and ask 2–5 probing follow-ups before returning to the main flow.
 
 ### Step 5 — Stop Condition
-- Do not write until: every major domain has been touched; high-pain/high-importance domains are deeply explored; tangents explored; can write several paragraphs per domain; user has nothing significant to add.
+- Do not write until: every major domain has been touched; high-importance domains are deeply explored; tangents explored; can write several paragraphs per domain; user has nothing significant to add.
 
 ### Step 6 — Manifesto Draft (2,000–3,000 words)
 - Generate: title, 1–2 sentence summary, multi-section long-form manifesto capturing identity, goals, obstacles, patterns, values, psychological drivers, long-term vision, mandatory habits.
@@ -76,7 +76,7 @@ The Manifesto Builder is the first module in the MLBAI system. It guides the use
 ## 4. Manifesto Requirements
 
 - Length: 1,000–2,000 words; narrative, detailed, in user’s voice.
-- Sections: Title; Summary; Physical Health; Mental Health; Diet & Food Relationship; Sleep; Fitness; Productivity; Work/Career/Business; Finances; Social Life; Relationships; Home Environment; Emotional Patterns; Core Obstacles; Identity Themes; Long-Term Vision; Mandatory Habits; Commitment Declaration.
+- Sections: Title; Summary; Physical Health; Mental Health; Diet & Food Relationship; Sleep; Fitness; Productivity; Work/Career/Business; Finances; Relationships; Home Environment; Emotional Patterns; Core Obstacles; Identity Themes; Long-Term Vision; Mandatory Habits; Commitment Declaration.
 
 ## 5. Goals & Trackers System
 

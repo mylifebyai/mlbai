@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { BuilderClient } from "./BuilderClient";
+import "./manifesto-builder.css";
 
 const isEnabled = process.env.NEXT_PUBLIC_MANIFESTO_BUILDER_ENABLED === "true";
 
@@ -85,11 +86,15 @@ export default function ManifestoBuilderPage() {
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-        <h3 className="text-lg font-semibold">Interactive scaffold (Step 2)</h3>
+        <h3 className="text-lg font-semibold">Interactive scaffold (Step 2 — flow test)</h3>
         <p className="mt-2 text-gray-700">
           Chat-style interview UI with a local-only state machine. Ratings drive which areas get
           deep-dive questions. No backend calls yet—this is just the UX skeleton for testing flow and
           pacing.
+        </p>
+        <p className="mt-1 text-sm text-gray-600">
+          Please run the full scan, mark a few high pain/importance areas, answer the deep-dive prompts,
+          and confirm it reaches the “ready to draft” state. UI polish will come later.
         </p>
         <div className="mt-4">
           <BuilderClient />
