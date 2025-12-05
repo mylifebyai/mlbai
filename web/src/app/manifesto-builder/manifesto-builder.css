@@ -276,9 +276,69 @@
   color: var(--muted);
 }
 
+.mb-textarea {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  min-height: 140px;
+  resize: vertical;
+  background: #fff;
+  color: var(--text);
+}
+
+.mb-textarea:focus {
+  outline: 2px solid rgba(249, 115, 22, 0.2);
+  border-color: #fb923c;
+}
+
 .mb-side-cards {
   display: grid;
   gap: 12px;
+}
+
+.mb-review {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  display: grid;
+  gap: 10px;
+}
+
+.mb-review-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mb-review-rating {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mb-review-questions {
+  display: grid;
+  gap: 8px;
+}
+
+.mb-question {
+  display: grid;
+  gap: 6px;
+}
+
+.mb-question-text {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
+}
+
+.mb-review-rewrite {
+  display: grid;
+  gap: 6px;
 }
 
 @media (max-width: 1024px) {

@@ -18,8 +18,8 @@ The Manifesto Builder is the first module in the MLBAI system. It guides the use
 - Explain duration (30–60 minutes).
 - Explain privacy (strictly private, admin cannot access).
 
-### Step 2 — Life Areas Scan
-- Structured scan of: Physical Health, Mental Health, Diet & Eating Patterns, Sleep, Exercise/Fitness, Productivity, Work/Career/Business, Finances, Relationships/Family, Home Environment, Emotional Life, Identity/Purpose, Creativity, Addictions/Destructive Behavior, and anything else the user mentions.
+### Step 2 — Life Areas Scan (section draft model)
+- Structured scan of streamlined sections: Physical Health; Mental/Emotional Health; Diet & Movement; Work & Money; Relationships/Family/Social; Home/Environment; Identity & Purpose; Obstacles & Loops; Other (catch-all).
 - For each area, ask Importance (1–10).
 
 ### Step 3 — Deep Dives
@@ -75,8 +75,8 @@ The Manifesto Builder is the first module in the MLBAI system. It guides the use
 
 ## 4. Manifesto Requirements
 
-- Length: 1,000–2,000 words; narrative, detailed, in user’s voice.
-- Sections: Title; Summary; Physical Health; Mental Health; Diet & Food Relationship; Sleep; Fitness; Productivity; Work/Career/Business; Finances; Relationships; Home Environment; Emotional Patterns; Core Obstacles; Identity Themes; Long-Term Vision; Mandatory Habits; Commitment Declaration.
+- Length: as long as needed to be fully detailed and specific; narrative, rich, in user’s voice (not a summary).
+- Sections: Title; Summary; Physical Health; Mental/Emotional Health; Diet & Movement; Work & Money; Relationships/Family/Social; Home/Environment; Identity & Purpose; Obstacles & Loops; Other (if used); Mandatory Habits; Commitment Declaration.
 
 ## 5. Goals & Trackers System
 
@@ -100,3 +100,4 @@ The Manifesto Builder is the first module in the MLBAI system. It guides the use
 - Use the branch alias for Preview `PATREON_REDIRECT_URI`: `https://mlbai-git-feature-manifesto-builder-mlbais-projects.vercel.app/api/patreon/callback` (stable across deployments on this branch).
 - Keep Production and Preview env vars separate in Vercel; adjust Preview to staging values when available; redeploy preview after env changes.
 - All manifesto content and user responses should be treated as sensitive; scope database access so only the user can read their manifesto.
+- Persistence: store drafts per user in `manifesto_drafts` (user_id PK/FK, sections JSONB, updated_at default now()).

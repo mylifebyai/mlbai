@@ -1,389 +1,614 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useAuth } from "../providers/AuthProvider";
 
-type Message = {
+type SectionStatus = "draft" | "in_review" | "complete";
+
+type Section = {
   id: string;
-  role: "assistant" | "user";
-  content: string;
+  title: string;
+  helper: string;
 };
 
-type Area = { id: string; label: string; helper: string };
+type ReviewQuestion = {
+  id: string;
+  text: string;
+  kind: "question" | "comment";
+};
 
-type Rating = { importance: number };
+type ReviewReply = {
+  questionId: string;
+  answer: string;
+};
 
-type DeepDiveItem = { areaId: string; questions: string[] };
+type ReviewHistoryItem = {
+  iteration: number;
+  rewrite: string;
+  rating: number | null;
+  rationale: string;
+  updatedAt: string;
+};
 
-const lifeAreas: Area[] = [
-  { id: "physical", label: "Physical Health", helper: "energy, medical issues, body signals" },
-  { id: "mental", label: "Mental Health", helper: "anxiety, mood, stress, coping" },
-  { id: "diet", label: "Diet & Food", helper: "relationship with food, patterns, binges" },
-  { id: "sleep", label: "Sleep", helper: "duration, quality, consistency" },
-  { id: "fitness", label: "Exercise / Fitness", helper: "movement, strength, cardio" },
-  { id: "productivity", label: "Productivity", helper: "focus, procrastination, execution" },
-  { id: "work", label: "Work / Career / Business", helper: "direction, progress, friction" },
-  { id: "finances", label: "Finances", helper: "spending, debt, savings, guilt" },
-  { id: "relationships", label: "Relationships / Family", helper: "connection, conflict, support" },
-  { id: "home", label: "Home Environment", helper: "organization, clutter, safety" },
-  { id: "emotional", label: "Emotional Life", helper: "patterns, shame cycles, triggers" },
-  { id: "identity", label: "Identity / Purpose", helper: "who you are, why this matters" },
-  { id: "creativity", label: "Creativity", helper: "expression, making things, blocked?" },
-  { id: "addictions", label: "Addictions / Destructive Behavior", helper: "loops that derail you" },
+type SectionReview = {
+  rewrite: string;
+  rating: number | null;
+  rationale: string;
+  questions: ReviewQuestion[];
+  replies: ReviewReply[];
+  iteration: number;
+  history: ReviewHistoryItem[];
+};
+
+type SectionState = {
+  content: string;
+  status: SectionStatus;
+  included: boolean;
+  review: SectionReview;
+};
+
+const sections: Section[] = [
+  { id: "physical", title: "Physical Health", helper: "Sleep, energy, medical issues, body signals." },
+  { id: "mental", title: "Mental/Emotional Health", helper: "Anxiety, mood, stress patterns." },
+  { id: "diet", title: "Diet & Movement", helper: "Food relationship, patterns, binges, exercise." },
+  { id: "work", title: "Work & Money", helper: "Direction, progress, spending, debt, guilt." },
+  {
+    id: "relationships",
+    title: "Relationships/Family/Social",
+    helper: "Connection, conflict, support, loneliness.",
+  },
+  { id: "home", title: "Home/Environment", helper: "Organization, stability, safety." },
+  { id: "identity", title: "Identity & Purpose", helper: "Who you are, why this matters." },
+  { id: "obstacles", title: "Obstacles & Loops", helper: "Triggers, self-sabotage, addictions." },
+  { id: "other", title: "Other", helper: "Anything uncaptured elsewhere." },
 ];
 
-const deepDiveQuestions: Record<string, string[]> = {
-  default: [
-    "Walk me through the recent history of this area. What’s been happening week to week?",
-    "What triggers the hardest moments? What is the loop you fall into?",
-    "What would a good week look like if this was working? Be specific.",
-  ],
-};
-
-const nextId = (() => {
-  let counter = 0;
-  return () => {
-    counter += 1;
-    return `msg-${Date.now()}-${counter}`;
-  };
-})();
-
 export function BuilderClient() {
-  const [messages, setMessages] = useState<Message[]>([]);
+  const { session, loading: authLoading } = useAuth();
   const [started, setStarted] = useState(false);
-  const [mode, setMode] = useState<"idle" | "rating" | "deepDive" | "complete">("idle");
-  const [ratings, setRatings] = useState<Record<string, Rating>>({});
-  const [currentAreaIndex, setCurrentAreaIndex] = useState(0);
-  const [tempImportance, setTempImportance] = useState<number | null>(5);
-  const [deepQueue, setDeepQueue] = useState<DeepDiveItem[]>([]);
-  const [deepIndex, setDeepIndex] = useState(0);
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [userInput, setUserInput] = useState("");
-  const listRef = useRef<HTMLDivElement>(null);
+  const defaultReview = useCallback(
+    (): SectionReview => ({
+      rewrite: "",
+      rating: null,
+      rationale: "",
+      questions: [],
+      replies: [],
+      iteration: 0,
+      history: [],
+    }),
+    [],
+  );
+  const normalizeReview = useCallback(
+    (incoming?: Partial<SectionReview>): SectionReview => {
+      const base = defaultReview();
+      if (!incoming) return base;
+      return {
+        rewrite: incoming.rewrite ?? base.rewrite,
+        rating: incoming.rating ?? base.rating,
+        rationale: incoming.rationale ?? base.rationale,
+        questions: incoming.questions ?? base.questions,
+        replies: incoming.replies ?? base.replies,
+        iteration: incoming.iteration ?? base.iteration,
+        history: incoming.history ?? base.history,
+      };
+    },
+    [defaultReview],
+  );
+  const [sectionState, setSectionState] = useState<Record<string, SectionState>>(() =>
+    sections.reduce(
+      (acc, section) => ({
+        ...acc,
+        [section.id]: { content: "", status: "draft", included: true, review: defaultReview() },
+      }),
+      {},
+    ),
+  );
+  const [helpOpen, setHelpOpen] = useState(false);
+  const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [loadingDraft, setLoadingDraft] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [reviewLoading, setReviewLoading] = useState<Record<string, boolean>>({});
+  const [reviewError, setReviewError] = useState<Record<string, string | null>>({});
 
-  const currentArea = lifeAreas[currentAreaIndex];
-  const currentDeep = deepQueue[deepIndex];
-  const currentDeepQuestion =
-    currentDeep?.questions[questionIndex] ?? deepDiveQuestions.default[questionIndex] ?? null;
-  const ratedCount = useMemo(() => Object.keys(ratings).length, [ratings]);
-  const totalAreas = lifeAreas.length;
-  const ratingProgress = Math.round((ratedCount / totalAreas) * 100);
-
-  useEffect(() => {
-    if (listRef.current) {
-      listRef.current.scrollTop = listRef.current.scrollHeight;
-    }
-  }, [messages]);
-
-  const startFlow = () => {
-    if (started) return;
-    setStarted(true);
-    setMode("rating");
-    setMessages([
-      {
-        id: nextId(),
-        role: "assistant",
-        content:
-          "Welcome. We’ll scan each life area. Use the rating panel to set Importance and Pain for each area, then continue.",
-      },
-      {
-        id: nextId(),
-        role: "assistant",
-        content:
-          "Once ratings are in, we’ll deep-dive the areas that hurt the most. This is all local for now—no backend yet.",
-      },
-    ]);
-  };
-
-  const reset = () => {
-    setMessages([]);
-    setStarted(false);
-    setMode("idle");
-    setRatings({});
-    setCurrentAreaIndex(0);
-    setTempImportance(5);
-    setDeepQueue([]);
-    setDeepIndex(0);
-    setQuestionIndex(0);
-    setUserInput("");
-  };
-
-  const addAssistantMessage = (content: string) => {
-    setMessages((prev) => [...prev, { id: nextId(), role: "assistant", content }]);
-  };
-
-  const addUserMessage = (content: string) => {
-    setMessages((prev) => [...prev, { id: nextId(), role: "user", content }]);
-  };
-
-  const handleSaveRating = () => {
-    if (tempImportance === null || !currentArea) return;
-    const updatedRatings = {
-      ...ratings,
-      [currentArea.id]: { importance: tempImportance },
-    };
-    setRatings(updatedRatings);
-    addUserMessage(`${currentArea.label} — Importance: ${tempImportance}/10.`);
-    setTempImportance(null);
-
-    const nextIndex = currentAreaIndex + 1;
-    if (nextIndex < lifeAreas.length) {
-      const nextArea = lifeAreas[nextIndex];
-      const nextDefault = updatedRatings[nextArea.id]?.importance ?? 5;
-      setTempImportance(nextDefault);
-      setCurrentAreaIndex(nextIndex);
-      addAssistantMessage(`Got it. Next: ${nextArea.label}.`);
-    } else {
-      const queue: DeepDiveItem[] = lifeAreas
-        .map((area) => {
-          const rating = updatedRatings[area.id];
-          const isHigh = rating && rating.importance >= 7;
-          if (!isHigh) return null;
-          return {
-            areaId: area.id,
-            questions: deepDiveQuestions[area.id] ?? deepDiveQuestions.default,
-          };
-        })
-        .filter(Boolean) as DeepDiveItem[];
-
-      if (queue.length > 0) {
-        setTempImportance(5);
-        setDeepQueue(queue);
-        setDeepIndex(0);
-        setQuestionIndex(0);
-        setMode("deepDive");
-        addAssistantMessage(
-          `Thanks. Let's dig into the toughest areas first. Starting with ${lifeAreas.find((a) => a.id === queue[0].areaId)?.label ?? "this area"}.`,
-        );
-        addAssistantMessage(queue[0].questions[0]);
-      } else {
-        setMode("complete");
-        setTempImportance(5);
-        addAssistantMessage(
-          "No high-pain/high-importance areas flagged. We can still draft a manifesto later, but you may want to add more detail.",
-        );
-      }
-    }
-  };
-
-  const advanceDeepDive = () => {
-    if (!currentDeep) {
-      setMode("complete");
-      addAssistantMessage("That’s enough for now. Next step will be drafting the manifesto.");
-      return;
-    }
-
-    const questions = currentDeep.questions ?? deepDiveQuestions.default;
-    const nextQuestionIndex = questionIndex + 1;
-    if (nextQuestionIndex < questions.length) {
-      setQuestionIndex(nextQuestionIndex);
-      addAssistantMessage(questions[nextQuestionIndex]);
-      return;
-    }
-
-    const nextDeepIndex = deepIndex + 1;
-    if (nextDeepIndex < deepQueue.length) {
-      const nextAreaId = deepQueue[nextDeepIndex].areaId;
-      setDeepIndex(nextDeepIndex);
-      setQuestionIndex(0);
-      addAssistantMessage(
-        `Thanks. Next, let's talk about ${lifeAreas.find((a) => a.id === nextAreaId)?.label ?? "this area"}.`,
-      );
-      addAssistantMessage(deepQueue[nextDeepIndex].questions[0]);
-    } else {
-      setMode("complete");
-      addAssistantMessage(
-        "We have enough depth to start drafting. Next steps will hook up generation, refinement, and goals.",
-      );
-    }
-  };
-
-  const handleSend = () => {
-    if (!userInput.trim()) return;
-    const trimmed = userInput.trim();
-    addUserMessage(trimmed);
-    setUserInput("");
-
-    if (mode === "deepDive") {
-      advanceDeepDive();
-    }
-  };
-
+  const totalSections = sections.length;
+  const selectedSections = useMemo(
+    () => sections.filter((section) => (sectionState[section.id]?.included ?? true)).length,
+    [sectionState],
+  );
+  const completed = useMemo(
+    () =>
+      sections.filter((section) => {
+        const state = sectionState[section.id];
+        const included = state?.included ?? true;
+        return included && state?.status === "complete";
+      }).length,
+    [sectionState],
+  );
+  const progressPct = selectedSections === 0 ? 0 : Math.round((completed / selectedSections) * 100);
   const statusLabel = useMemo(() => {
     if (!started) return "Not started";
-    if (mode === "rating")
-      return `Rating: ${currentArea?.label ?? ""} (${currentAreaIndex + 1}/${lifeAreas.length})`;
-    if (mode === "deepDive") {
-      const areaLabel =
-        deepQueue.length > 0
-          ? lifeAreas.find((a) => a.id === deepQueue[deepIndex]?.areaId)?.label
-          : "Deep dive";
-      return `Deep dive: ${areaLabel ?? ""}`;
+    if (selectedSections === 0) return "No sections selected";
+    if (completed === selectedSections) return "All selected sections ready to draft";
+    return `${completed}/${selectedSections} selected sections marked complete`;
+  }, [started, completed, selectedSections]);
+
+  const start = () => setStarted(true);
+  const reset = () => {
+    setStarted(false);
+    setHelpOpen(false);
+    setLastSaved(null);
+    setSectionState(
+      sections.reduce(
+        (acc, section) => ({
+          ...acc,
+          [section.id]: { content: "", status: "draft", included: true, review: defaultReview() },
+        }),
+        {},
+      ),
+    );
+  };
+
+  const updateContent = (id: string, value: string) => {
+    setSectionState((prev) => ({ ...prev, [id]: { ...prev[id], content: value } }));
+  };
+
+  const updateStatus = (id: string, status: SectionStatus) => {
+    setSectionState((prev) => ({ ...prev, [id]: { ...prev[id], status } }));
+  };
+
+  const updateIncluded = (id: string, included: boolean) => {
+    setSectionState((prev) => ({ ...prev, [id]: { ...prev[id], included } }));
+  };
+
+  const updateReply = (sectionId: string, questionId: string, answer: string) => {
+    setSectionState((prev) => {
+      const current = prev[sectionId] ?? { content: "", status: "draft", included: true, review: defaultReview() };
+      const review = normalizeReview(current.review);
+      const existing = review.replies.find((r) => r.questionId === questionId);
+      const replies = existing
+        ? review.replies.map((r) => (r.questionId === questionId ? { ...r, answer } : r))
+        : [...review.replies, { questionId, answer }];
+      return {
+        ...prev,
+        [sectionId]: {
+          ...current,
+          review: { ...review, replies },
+        },
+      };
+    });
+  };
+
+  const setReviewState = (
+    sectionId: string,
+    updater: (current: { review: SectionReview } & SectionState) => SectionState,
+  ) => {
+    setSectionState((prev) => {
+      const current = prev[sectionId] ?? { content: "", status: "draft", included: true, review: defaultReview() };
+      return { ...prev, [sectionId]: updater({ ...current, review: normalizeReview(current.review) }) };
+    });
+  };
+
+  const requestReview = async (sectionId: string) => {
+    const sectionMeta = sections.find((s) => s.id === sectionId);
+    const state = sectionState[sectionId];
+    if (!state?.included) {
+      setReviewError((prev) => ({ ...prev, [sectionId]: "Include the section before requesting review." }));
+      return;
     }
-    return "Ready for drafting (next steps)";
-  }, [started, mode, currentArea?.label, deepQueue, deepIndex, currentAreaIndex]);
+    if (!state?.content?.trim()) {
+      setReviewError((prev) => ({ ...prev, [sectionId]: "Add content before requesting review." }));
+      return;
+    }
+
+    setReviewLoading((prev) => ({ ...prev, [sectionId]: true }));
+    setReviewError((prev) => ({ ...prev, [sectionId]: null }));
+    try {
+      const res = await fetch("/api/manifesto-review", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+        },
+        body: JSON.stringify({
+          sectionId,
+          sectionTitle: sectionMeta?.title,
+          content: state.content,
+          replies: state.review?.replies ?? [],
+          iteration: state.review?.iteration ?? 0,
+          included: state.included,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? "Review failed");
+      }
+      const body = (await res.json()) as {
+        questions?: ReviewQuestion[];
+        rewrite?: string;
+        rating?: number;
+        rationale?: string;
+        iteration?: number;
+      };
+      setReviewState(sectionId, (current) => {
+        const now = new Date().toISOString();
+        const review = normalizeReview(current.review);
+        const historyEntry = {
+          iteration: body.iteration ?? review.iteration + 1,
+          rewrite: body.rewrite ?? review.rewrite,
+          rating: body.rating ?? review.rating ?? null,
+          rationale: body.rationale ?? review.rationale,
+          updatedAt: now,
+        };
+        return {
+          ...current,
+          review: {
+            rewrite: body.rewrite ?? review.rewrite,
+            rating: body.rating ?? review.rating,
+            rationale: body.rationale ?? review.rationale,
+            questions: body.questions ?? review.questions,
+            replies: review.replies,
+            iteration: body.iteration ?? review.iteration + 1,
+            history: [...review.history, historyEntry],
+          },
+        };
+      });
+    } catch (err) {
+      setReviewError((prev) => ({
+        ...prev,
+        [sectionId]: err instanceof Error ? err.message : "Unable to run review.",
+      }));
+    } finally {
+      setReviewLoading((prev) => ({ ...prev, [sectionId]: false }));
+    }
+  };
+
+  const mergeDraft = (incoming: Record<string, SectionState> | null | undefined) => {
+    if (!incoming) return;
+    setSectionState((prev) =>
+      sections.reduce((acc, section) => {
+        const existing =
+          incoming[section.id] ?? prev[section.id] ?? { content: "", status: "draft", included: true };
+        const included = existing.included ?? true;
+        return {
+          ...acc,
+          [section.id]: {
+            content: existing.content ?? "",
+            status: existing.status ?? "draft",
+            included,
+            review: normalizeReview(existing.review),
+          },
+        };
+      }, {} as Record<string, SectionState>),
+    );
+  };
+
+  const loadDraft = useCallback(async () => {
+    if (!session?.access_token) return;
+    setLoadingDraft(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/manifesto-draft", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? "Failed to load draft");
+      }
+      const body = (await res.json()) as { draft?: { sections?: Record<string, SectionState>; updated_at?: string } };
+      mergeDraft(body?.draft?.sections ?? {});
+      setLastSaved(body?.draft?.updated_at ?? null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to load draft");
+    } finally {
+      setLoadingDraft(false);
+    }
+  }, [session?.access_token]);
+
+  const saveDraft = async () => {
+    if (!session?.access_token) {
+      setError("Sign in to save your draft.");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/manifesto-draft", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ sections: sectionState }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error ?? "Failed to save draft");
+      }
+      setLastSaved(new Date().toISOString());
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unable to save draft");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  useEffect(() => {
+    if (started && session?.access_token) {
+      loadDraft();
+    }
+  }, [started, session?.access_token, loadDraft]);
 
   return (
     <div className="mb-shell">
       <div className="mb-header">
         <div className="mb-header-main">
           <div>
-            <p className="mb-eyebrow">Step 2 — Interview flow</p>
+            <p className="mb-eyebrow">Step 3 — Section drafting</p>
             <p className="mb-status">{statusLabel}</p>
             <div className="mb-progress-wrap">
               <div className="mb-progress-bar">
-                <span style={{ width: `${Math.min(100, ratingProgress)}%` }} />
+                <span style={{ width: `${Math.min(100, progressPct)}%` }} />
               </div>
-              <span>
-                {ratedCount}/{totalAreas} rated
-              </span>
+              <span>{selectedSections > 0 ? `${completed}/${selectedSections} complete` : "0 selected"}</span>
             </div>
           </div>
           <div className="mb-actions">
             <span className="mb-badge">Local-only</span>
-            <span className="mb-badge">Flow testing</span>
+            <span className="mb-badge">Drafting</span>
             {started ? (
-              <button type="button" onClick={reset} className="mb-btn">
-                Reset
-              </button>
+              <>
+                <button type="button" onClick={reset} className="mb-btn">
+                  Reset
+                </button>
+                <button
+                  type="button"
+                  onClick={saveDraft}
+                  className="mb-btn mb-btn-primary"
+                  disabled={saving || authLoading}
+                >
+                  {saving ? "Saving..." : "Save draft"}
+                </button>
+              </>
             ) : (
-              <button type="button" onClick={startFlow} className="mb-btn mb-btn-primary">
-                Start interview
+              <button type="button" onClick={start} className="mb-btn mb-btn-primary">
+                Start drafting
               </button>
             )}
           </div>
         </div>
       </div>
 
-      <div className="mb-grid">
-        <div className="mb-card mb-transcript-wrap">
-          <div className="mb-transcript-header">
-            <div>
-              <p className="mb-status" style={{ fontSize: "16px", marginBottom: 2 }}>
-                Transcript
+      <div className="mb-grid" style={{ gridTemplateColumns: "2fr 1fr" }}>
+        <div className="mb-card" style={{ gridColumn: "1 / -1", marginBottom: 0 }}>
+          <h3 className="mb-card-title" style={{ marginBottom: 8 }}>
+            Sections
+          </h3>
+            <p className="mb-note">
+              Draft each section in your own words. Later, ChatGPT will ask targeted follow-ups and
+              suggest rewrites per section. You can mark sections “in review” or “complete” locally.
+            </p>
+            {loadingDraft && <p className="mb-note">Loading your saved draft...</p>}
+            {lastSaved && (
+              <p className="mb-note">Last saved: {new Date(lastSaved).toLocaleString()}</p>
+            )}
+            {error && <p className="mb-note" style={{ color: "#b91c1c" }}>{error}</p>}
+            {!session && (
+              <p className="mb-note" style={{ color: "#b91c1c" }}>
+                Sign in to save and load your draft. Changes stay local otherwise.
               </p>
-              <small>Answer deep-dive questions here</small>
-            </div>
-            <span className="mb-tag">{mode === "deepDive" ? "Deep dive" : "Scanning"}</span>
-          </div>
-          <div ref={listRef} className="mb-transcript">
-            {messages.map((msg) => (
-              <div
-                key={msg.id}
-                className={`mb-bubble ${msg.role === "assistant" ? "assistant" : "user"}`}
-              >
-                {msg.content}
-              </div>
-            ))}
-            {messages.length === 0 && (
-              <div className="mb-bubble assistant">
-                Press “Start interview” to begin. Rate areas in the sidebar; deep-dive answers show up
-                here.
-              </div>
             )}
           </div>
 
-          <div className="mb-input-row">
-            <input
-              type="text"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  handleSend();
-                }
-              }}
-              placeholder={
-                mode === "deepDive"
-                  ? "Respond to the current deep-dive question..."
-                  : "Waiting for ratings. Use the panel on the right."
-              }
-              disabled={!started || mode !== "deepDive"}
-            />
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={!started || mode !== "deepDive" || !userInput.trim()}
-              className="mb-btn mb-btn-primary"
-            >
-              Send
-            </button>
+        <div className="mb-card" style={{ gridColumn: "1 / 2", padding: 0 }}>
+          <div
+            className="mb-side-cards"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr",
+              gap: "12px",
+              padding: "12px",
+            }}
+          >
+            {sections.map((section) => {
+              const state = sectionState[section.id];
+              const status = state?.status ?? "draft";
+              const included = state?.included ?? true;
+              return (
+                <div
+                  key={section.id}
+                  className="mb-card"
+                  style={{ boxShadow: "none", opacity: included ? 1 : 0.65 }}
+                >
+                  <div className="mb-rating" style={{ gap: 8 }}>
+                    <header style={{ alignItems: "center" }}>
+                      <div>
+                        <div className="area-info">{section.title}</div>
+                        <div className="area-helper">{section.helper}</div>
+                      </div>
+                      <span className="mb-tag" style={{ textTransform: "capitalize" }}>
+                        {included ? status.replace("_", " ") : "Skipped"}
+                      </span>
+                    </header>
+                    <textarea
+                      value={state?.content ?? ""}
+                      onChange={(e) => updateContent(section.id, e.target.value)}
+                      rows={6}
+                      placeholder={included ? "Write your thoughts here..." : "Section skipped for now"}
+                      className="mb-textarea"
+                      disabled={!included}
+                    />
+                    {!included && (
+                      <p className="mb-note" style={{ marginTop: -4 }}>
+                        This section is skipped. Include it to edit and mark progress.
+                      </p>
+                    )}
+                    <div className="mb-actions" style={{ justifyContent: "flex-end" }}>
+                      <button
+                        type="button"
+                        className="mb-btn"
+                        onClick={() => updateIncluded(section.id, !included)}
+                      >
+                        {included ? "Skip this section" : "Include this section"}
+                      </button>
+                      <button
+                        type="button"
+                        className="mb-btn"
+                        onClick={() => updateStatus(section.id, "in_review")}
+                        disabled={!included}
+                      >
+                        Mark in review
+                      </button>
+                      <button
+                        type="button"
+                        className="mb-btn mb-btn-primary"
+                        onClick={() => updateStatus(section.id, "complete")}
+                        disabled={!included}
+                      >
+                        Mark complete
+                      </button>
+                    </div>
+                    <div className="mb-review">
+                      <div className="mb-review-header">
+                        <div>
+                          <div className="area-info">Review with AI</div>
+                          <div className="area-helper">
+                            Get follow-ups and a rewrite until it’s a 10/10. Answer questions to improve the draft.
+                          </div>
+                        </div>
+                        <div className="mb-review-rating">
+                          <span className="mb-tag">
+                            {state.review.rating ? `${state.review.rating}/10` : "Not rated"}
+                          </span>
+                          {state.review.iteration > 0 && (
+                            <span className="mb-tag" style={{ background: "#ecfeff", color: "#0e7490" }}>
+                              Iteration {state.review.iteration}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {reviewError[section.id] && (
+                        <p className="mb-note" style={{ color: "#b91c1c" }}>
+                          {reviewError[section.id]}
+                        </p>
+                      )}
+                      {state.review.questions.length > 0 && (
+                        <div className="mb-review-questions">
+                          {state.review.questions.map((q) => {
+                            const reply = state.review.replies.find((r) => r.questionId === q.id)?.answer ?? "";
+                            return (
+                              <div key={q.id} className="mb-question">
+                                <p className="mb-question-text">
+                                  {q.kind === "comment" ? "Comment" : "Question"}: {q.text}
+                                </p>
+                                <textarea
+                                  className="mb-textarea"
+                                  rows={3}
+                                  placeholder="Your answer"
+                                  value={reply}
+                                  onChange={(e) => updateReply(section.id, q.id, e.target.value)}
+                                  disabled={!included || reviewLoading[section.id]}
+                                />
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      <div className="mb-actions" style={{ justifyContent: "flex-end" }}>
+                        <button
+                          type="button"
+                          className="mb-btn"
+                          onClick={() => requestReview(section.id)}
+                          disabled={!included || reviewLoading[section.id]}
+                        >
+                          {state.review.iteration > 0 ? "Resubmit for review" : "Review with AI"}
+                        </button>
+                        <button
+                          type="button"
+                          className="mb-btn"
+                          onClick={() => {
+                            updateContent(section.id, state.review.rewrite);
+                          }}
+                          disabled={!included || !state.review.rewrite}
+                        >
+                          Use AI rewrite
+                        </button>
+                      </div>
+                      <div className="mb-review-rewrite">
+                        <p className="mb-question-text">AI rewrite (editable)</p>
+                        <textarea
+                          className="mb-textarea"
+                          rows={5}
+                          value={state.review.rewrite}
+                          onChange={(e) =>
+                            setReviewState(section.id, (current) => ({
+                              ...current,
+                              review: { ...current.review, rewrite: e.target.value },
+                            }))
+                          }
+                          placeholder="Request a review to see the AI rewrite. You can edit it directly."
+                          disabled={reviewLoading[section.id]}
+                        />
+                        {state.review.rationale && (
+                          <p className="mb-note" style={{ marginTop: 6 }}>
+                            Rationale: {state.review.rationale}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <p className="mb-note">
-            Tip: rate each area in the sidebar, then answer deep-dive questions here.
-          </p>
         </div>
 
-        <aside className="mb-side-cards">
+        <aside className="mb-side-cards" style={{ gridColumn: "2 / 3", gap: "12px" }}>
           <div className="mb-card">
-            <h3 className="mb-card-title">How to test</h3>
+            <h3 className="mb-card-title">Status</h3>
+            <p className="mb-note">{statusLabel}</p>
+            <div className="mb-progress-card">
+              <div className="meter">
+                <span style={{ width: `${Math.min(100, progressPct)}%` }} />
+              </div>
+              <p className="mb-note" style={{ marginTop: 6 }}>
+                {selectedSections > 0
+                  ? `${completed}/${selectedSections} selected sections marked complete`
+                  : "0 sections selected"}
+              </p>
+              <p className="mb-note" style={{ marginTop: 4 }}>
+                Selected: {selectedSections} / {totalSections} total sections
+              </p>
+            </div>
+          </div>
+
+          <div className="mb-card">
+            <h3 className="mb-card-title">What’s next?</h3>
             <ol className="mb-list">
-              <li>Start the interview.</li>
-              <li>Rate each area; mark a few as 7+ importance to trigger deep dives.</li>
-              <li>Answer the deep-dive questions.</li>
-              <li>Confirm it reaches “ready to draft.”</li>
+              <li>Draft each section in your own voice.</li>
+              <li>Mark sections “in review” or “complete” as you go.</li>
+              <li>Later we’ll add AI follow-ups and rewrites per section.</li>
+              <li>When all sections are complete, we’ll generate the manifesto.</li>
             </ol>
           </div>
 
-          <div className="mb-card mb-progress-card">
-            <div className="mb-progress-row" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <h3 className="mb-card-title" style={{ marginBottom: 0 }}>
-                Progress
-              </h3>
-              <span className="mb-tag">{ratingProgress}% rated</span>
-            </div>
-            <p style={{ margin: "4px 0 8px", color: "var(--muted)" }}>{statusLabel}</p>
-            <div className="mb-note" style={{ marginTop: 0 }}>
-              {mode === "rating" && currentArea
-                ? `Rating ${currentArea.label} — ${currentArea.helper}`
-                : mode === "deepDive" && currentDeep
-                  ? `Deep dive on ${lifeAreas.find((a) => a.id === currentDeep.areaId)?.label ?? "this area"}`
-                  : "Waiting to start or ready for next steps."}
-            </div>
-            <div className="meter">
-              <span style={{ width: `${Math.min(100, ratingProgress)}%` }} />
-            </div>
-          </div>
-
           <div className="mb-card">
-            <h3 className="mb-card-title">Rate this area</h3>
-            {mode === "rating" && currentArea ? (
-              <div className="mb-rating">
-                <header>
-                  <div>
-                    <div className="area-info">{currentArea.label}</div>
-                    <div className="area-helper">{currentArea.helper}</div>
-                  </div>
-                  <span className="mb-tag">
-                    {currentAreaIndex + 1} / {totalAreas}
-                  </span>
-                </header>
-                <div className="mb-slider">
-                  <label className="area-helper">Importance (1-10)</label>
-                  <input
-                    type="range"
-                    min={1}
-                    max={10}
-                    value={tempImportance ?? 5}
-                    onChange={(e) => setTempImportance(Number(e.target.value))}
-                  />
-                  <div className="value">Current: {tempImportance ?? "Pick a value"}</div>
-                </div>
-                <button type="button" onClick={handleSaveRating} className="mb-btn mb-btn-primary">
-                  Save rating &amp; next area
-                </button>
-              </div>
-            ) : (
-              <p className="mb-note">Ratings are available during the scan. Start the flow to begin.</p>
-            )}
-          </div>
-
-          <div className="mb-card">
-            <h3 className="mb-card-title">Deep-dive prompt</h3>
-            {mode === "deepDive" && currentDeepQuestion ? (
-              <p style={{ margin: 0, color: "var(--text)" }}>{currentDeepQuestion}</p>
-            ) : (
-              <p className="mb-note">After ratings, high-importance areas will trigger deep questions.</p>
+            <h3 className="mb-card-title">Sample follow-ups (coming soon)</h3>
+            <p className="mb-note">
+              We’ll surface AI follow-ups here per section. For now, keep writing and marking
+              completion locally.
+            </p>
+            <div className="mb-actions" style={{ marginTop: 8 }}>
+              <button type="button" className="mb-btn" onClick={() => setHelpOpen(!helpOpen)}>
+                {helpOpen ? "Hide follow-ups" : "Show follow-ups"}
+              </button>
+            </div>
+            {helpOpen && (
+              <ul className="mb-list" style={{ marginTop: 8 }}>
+                <li>What triggered this pattern originally?</li>
+                <li>What does a “good week” look like here?</li>
+                <li>What throws you off more than anything?</li>
+              </ul>
             )}
           </div>
         </aside>
