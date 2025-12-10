@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { ProductivityClient } from "./ProductivityClient";
 
 const isEnabled = process.env.NEXT_PUBLIC_PRODUCTIVITY_ENABLED === "true";
 
@@ -66,6 +67,10 @@ export default function ProductivityPage() {
             or placeholders like [Need detail on X].
           </p>
         </div>
+      </section>
+
+      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+        <ProductivityClient />
       </section>
     </main>
   );
