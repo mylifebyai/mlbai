@@ -16,14 +16,6 @@
 - Word count shown for quick size checks; clear button empties the draft locally.
 - Single textbox used for all content; assistant considers the whole draft.
 
-## Next step (priority)
-- [ ] Allow the assistant to write directly into the manifesto editor (e.g., insert suggested text when the user asks “what should I type?”), with clear UX/controls to accept, edit, or undo suggestions.
-  - [x] Insert as italicized suggestion appended below current text (initial behavior); avoid overwriting existing content; auto-append when the user asks for suggestions or when the assistant recommends changes.
-  - [ ] Provide explicit apply/undo controls or a quick “remove suggestion” action.
-  - [ ] Decide cursor placement (append vs. at selection) and show what changed.
-  - [ ] Throttle/guard autosave so suggestions aren’t permanently saved before user confirmation.
-  - [ ] Consider version restore to the last saved draft for safety.
-
 ## Open questions / later
 - [ ] Add markdown-like shortcuts (e.g., `##` for headings) and refine toolbar UX.
 - [ ] Decide on autosave cadence, versioning, and conflict handling if multiple sessions edit.

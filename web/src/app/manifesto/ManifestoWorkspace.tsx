@@ -55,19 +55,6 @@ function applyCommand(command: string, value?: string, target?: HTMLElement | nu
   document.execCommand(command, false, value);
 }
 
-function removeExistingSuggestions(root: HTMLElement | null) {
-  if (!root) return;
-  root.querySelectorAll("[data-assistant-suggestion]").forEach((node) => {
-    node.remove();
-  });
-  root.querySelectorAll("p, div").forEach((node) => {
-    const text = (node.textContent ?? "").toLowerCase();
-    if (text.includes("suggested:")) {
-      node.remove();
-    }
-  });
-}
-
 export function ManifestoWorkspace() {
   const { session, loading: authLoading } = useAuth();
   const [editorHtml, setEditorHtml] = useState("");
@@ -86,24 +73,6 @@ export function ManifestoWorkspace() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const appendSuggestionToEditor = (suggestion: string) => {
-    if (!suggestion.trim()) return;
-    if (editorRef.current) {
-      removeExistingSuggestions(editorRef.current);
-    }
-    const safeText = escapeHtml(suggestion.replace(/\s+/g, " ").trim());
-    const capped = safeText.length > 600 ? `${safeText.slice(0, 600)}…` : safeText;
-    const suggestionHtml =
-      '<p data-assistant-suggestion style="color:#6b7280;"><em>Suggested: ' + capped + "</em></p>";
-    const currentHtml = editorRef.current?.innerHTML || editorHtml || "";
-    const spacer = currentHtml.trim() ? "<p><br /></p>" : "";
-    const nextHtml = `${currentHtml}${spacer}${suggestionHtml}`;
-    if (editorRef.current) {
-      editorRef.current.innerHTML = nextHtml;
-    }
-    setEditorHtml(nextHtml);
-  };
-
   const handleSend = async () => {
     if (!input.trim()) {
       return;
@@ -116,9 +85,6 @@ export function ManifestoWorkspace() {
     }
 
     const userMessage = createMessage("user", input.trim());
-    const wantsSuggestion = /suggest|what should i (write|type)|how is that|feedback|review/i.test(
-      userMessage.content,
-    );
     const nextMessages = [...messages, userMessage];
     setMessages(nextMessages);
     setInput("");
@@ -145,10 +111,6 @@ export function ManifestoWorkspace() {
         "I’m here to help you iterate. Share what you want to explore, or tell me where the manifesto feels thin.";
 
       setMessages((prev) => [...prev, createMessage("assistant", assistantReply)]);
-      const assistantSuggestsChange = /suggest|consider|could|revise|rewrite|change/i.test(assistantReply);
-      if (wantsSuggestion || assistantSuggestsChange) {
-        appendSuggestionToEditor(assistantReply);
-      }
     } catch (error) {
       console.error(error);
       setMessages((prev) => [
@@ -418,7 +380,7 @@ export function ManifestoWorkspace() {
               </div>
             </div>
 
-            <div className="flex min-h-0 flex-1 flex-col rounded-2xl border border-gray-100 bg-gradient-to-b from-white/80 to-amber-50/60 shadow-inner shadow-amber-50/60">
+            <div className="flex min-h-0 max-h-[75vh] flex-1 flex-col rounded-2xl border border-gray-100 bg-gradient-to-b from-white/80 to-amber-50/60 shadow-inner shadow-amber-50/60">
               <div className="flex-1 space-y-3 overflow-y-auto px-4 py-4" aria-live="polite">
                 {messages.map((message) => (
                   <div key={message.id} className={`flex ${message.role === "assistant" ? "justify-start" : "justify-end"}`}>
